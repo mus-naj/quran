@@ -15,6 +15,15 @@ const ahrof_hamzah = 'اأإآؤئءٰ';
 const kul_huroof = ahrof_hamzah + huroof + special_huroof;
 const huroof_wa_harakat = kul_huroof.kul_alharakat;
 
+var regex_flags='gu';
+
+try{
+    new RegExp("",regex_flags);
+}
+catch(exp){
+    regex_flags='g';
+}
+
 function arabic_to_english_number(number){
     return numbers[arabic_numbers.search(number)];
 }
@@ -37,7 +46,7 @@ function removeHarakatOfLastHarf(text){
     //add space to end
     //search by harakat followed by space
     text=text+' ';
-    text=text.replace(new RegExp(optionalChars(kul_alharakat,'+')+' ','gu'),' ');//  preg_filter('/'.optionalChars(kul_alharakat).' /u',' ',$text.' ');
+    text=text.replace(new RegExp(optionalChars(kul_alharakat,'+')+' ',regex_flags),' ');//  preg_filter('/'.optionalChars(kul_alharakat).' /u',' ',$text.' ');
     return text.slice(0, -1); //removes last space
 }
 
@@ -84,7 +93,7 @@ function getRegexPatternForString(text)
 
     text = text.replace(/(\d)/g,"\\$1");
 
-    text = new RegExp(text,'gu');
+    text = new RegExp(text,regex_flags);
 
     return text;
 }
