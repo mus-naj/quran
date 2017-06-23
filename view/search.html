@@ -2,6 +2,10 @@
     ابحث: <input name="regex_input" ng-trim="false" ng-keyup="$event.keyCode == 13 && searchButtonClicked()"
                  type="text" class="search-input" ng-model="regex_query"/>
     <button ng-click="searchButtonClicked()">ابحث</button>
+    <button ng-click="regex_query = regex_query + 'ََ'">إضافة فتحة</button>
+    <button ng-click="regex_query = regex_query + 'ِ'">إضافة كسرة</button>
+    <button ng-click="regex_query = regex_query + 'َُ'">إضافة ضمة</button>
+    <button ng-click="regex_query = regex_query + 'ّ'">إضافة شدة</button>
 
     <!--<br>-->
     <!--ضمن النتائج: <input name="company" type="text" class="search-input" ng-model="query"/>-->
