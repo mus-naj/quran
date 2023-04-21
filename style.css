@@ -1,3 +1,7 @@
+body {
+    font-size: 1.3em;
+}
+
 .left {
     display:      inline;
     float:        right;
@@ -193,9 +197,14 @@ body{
 
 button{
     padding: 0.45em 20px;
+    margin: 0.25em 0.15em;
     vertical-align: bottom;
     border: 1px solid #ddd;
     font-size: 0.8em;
+}
+
+h3 {
+    margin: 0.35em 0;
 }
 
 @media screen and (max-width: 800px) {
