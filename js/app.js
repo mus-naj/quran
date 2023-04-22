@@ -65,7 +65,7 @@ function addAfterEachLetter(add_str,str)
 
     var chars_arr=str.split("");
 
-    var ignored_chars = '.(|)[]*?؟$^ ْ'+numbers;
+    var ignored_chars = ':<>!{}+-.(|)[]*?؟$^ ْ' + numbers + kul_alharakat;
     const ignored_chars_arr = ignored_chars.split("");
     const count_chars = chars_arr.length;
     for(var i=0; i< count_chars; i++){
@@ -85,7 +85,7 @@ function getRegexPatternForString(text)
     text = addAfterEachLetter(optionalChars(kul_alharakat), text);
 
     // use ".." to match any number of words
-    text = text.replace(/\s\.\.\s/g,"(?:\\s\.)*\\s");
+    text = text.replace(/\s\.\.\s/g,"(?:\\s\.)*?\\s");
     //text = text.replace(/\s\.\.\s/g,"(?:\\s[^"++"])*\\s");
 
     // use "." to match any number of chars in a word
@@ -101,6 +101,10 @@ function getRegexPatternForString(text)
     });
 
     text = text.replace(/(\d)/g,"\\$1");
+
+    text = text.replace(SHADDA + FATHA,FATHA + SHADDA);
+    text = text.replace(SHADDA + KASRA,KASRA + SHADDA);
+    text = text.replace(SHADDA + DAMMA,DAMMA + SHADDA);
 
     text = new RegExp(text,regex_flags);
 
@@ -201,6 +205,7 @@ myApp.controller('AyatSearchController',function ($scope, $http, $routeParams, $
     $scope.DAMMA = DAMMA
     $scope.KASRA = KASRA
     $scope.SHADDA = SHADDA
+    $scope.SUKUN = SUKUN
 
     var matchAyat = function (newValue) {
         var filtered_ayat=all_ayat.filter(function(item){
@@ -373,6 +378,7 @@ myApp.controller('AyatSearchController',function ($scope, $http, $routeParams, $
 
         // Set the new value of the input
         input.value = newValue;
+        $scope.regex_query = newValue
 
         // Move the cursor to the next position
         let newPosition = cursorPos + text.length

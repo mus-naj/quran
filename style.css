@@ -31,9 +31,10 @@ body {
 
 /* show kasrah */
 input[type=text]{
-    height: 1.7em;
+    height: 1.3em;
     text-indent: 0.5em;
-    font-size: 1em;
+    letter-spacing: 0.1em;
+    font-size: 1.6em;
 }
 
 /** more **/
