@@ -375,8 +375,9 @@ myApp.controller('AyatSearchController',function ($scope, $http, $routeParams, $
         input.value = newValue;
 
         // Move the cursor to the next position
-        input.selectionStart = cursorPos + text.length;
-        input.selectionEnd = cursorPos + text.length;
+        let newPosition = cursorPos + text.length
+        input.setSelectionRange(newPosition, newPosition);
+        input.focus();
     };
 
     $scope.clearResultsFilter = function() {
