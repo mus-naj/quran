@@ -195,12 +195,36 @@ body{
     text-align: center;
 }
 
-button{
+button {
     padding: 0.45em 20px;
     margin: 0.25em 0.15em;
     vertical-align: bottom;
-    border: 1px solid #ddd;
+    border: 1px solid #9d9d9d;
     font-size: 0.8em;
+    background: #ccc;
+}
+
+button:hover {
+    background: #fff;
+    cursor: pointer;
+}
+
+div#search-input-container {
+    display: inline-block;
+    border: 1px solid #cacaca;
+    border-radius: 0.35em;
+    padding: 0.45em;
+    margin: 0.15em;
+    background: #e8e8e8;
+}
+
+div#input-options {
+    display: inline-block;
+    margin: 0.15em;
+    border: 1px solid #cacaca;
+    border-radius: 0.4em;
+    padding: 0.65em;
+    background: #e8e8e8;
 }
 
 h3 {

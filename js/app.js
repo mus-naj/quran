@@ -13,7 +13,16 @@ const special_huroof = 'ةى';
 const ahrof_alela = 'اويى';
 const ahrof_hamzah = 'اأإآؤئءٰ';
 const kul_huroof = ahrof_hamzah + huroof + special_huroof;
-const huroof_wa_harakat = kul_huroof.kul_alharakat;
+const huroof_wa_harakat = kul_huroof + kul_alharakat;
+
+const FATHATAN = "\u064B"; // ً
+const DAMMATAN = "\u064C"; // ٌ
+const KASRATAN = "\u064D"; // ٍ
+const FATHA = "\u064E"; // َ
+const DAMMA = "\u064F"; // ُ
+const KASRA = "\u0650"; // ِ
+const SHADDA = "\u0651"; // ّ
+const SUKUN = "\u0652"; // ْ
 
 var regex_flags='gu';
 
@@ -76,7 +85,7 @@ function getRegexPatternForString(text)
     text = addAfterEachLetter(optionalChars(kul_alharakat), text);
 
     // use ".." to match any number of words
-    text = text.replace(/\s\.\.\s/g,"(?:\\s\.)*\\s");
+    text = text.replace(/\s\.\.\s/g,"(?:\\s\.)*\\s?");
     //text = text.replace(/\s\.\.\s/g,"(?:\\s[^"++"])*\\s");
 
     // use "." to match any number of chars in a word
@@ -106,7 +115,7 @@ var uniqueItems = function (data, key) {
 
         for(var j=0;j<values_arr.length;j++){
             const value=values_arr[j];
-            if (result.indexOf(value) == -1) {
+            if (result.indexOf(value) === -1) {
                 result.push(value);
             }
         }
@@ -187,6 +196,11 @@ myApp.controller('AyatSearchController',function ($scope, $http, $routeParams, $
 
     $scope.suwar=all_suwar;
     $scope.searchStr='';
+
+    $scope.FATHA = FATHA
+    $scope.DAMMA = DAMMA
+    $scope.KASRA = KASRA
+    $scope.SHADDA = SHADDA
 
     var matchAyat = function (newValue) {
         var filtered_ayat=all_ayat.filter(function(item){
@@ -344,6 +358,27 @@ myApp.controller('AyatSearchController',function ($scope, $http, $routeParams, $
         $location.search( "s", $scope.regex_query );
     };
 
+    $scope.appendToCurrentTypingCursor = function(text) {
+        // Get the input element
+        var input = document.getElementById("search-input");
+
+        // Get the current value of the input
+        var inputValue = input.value;
+
+        // Get the current cursor position
+        var cursorPos = input.selectionStart;
+
+        // Concatenate the new character at the current cursor position
+        var newValue = inputValue.substring(0, cursorPos) + text + inputValue.substring(cursorPos);
+
+        // Set the new value of the input
+        input.value = newValue;
+
+        // Move the cursor to the next position
+        input.selectionStart = cursorPos + text.length;
+        input.selectionEnd = cursorPos + text.length;
+    };
+
     $scope.clearResultsFilter = function() {
         $scope.useResults = {};
     };
@@ -359,20 +394,7 @@ myApp.controller('AyatSearchController',function ($scope, $http, $routeParams, $
         var search = ($location.search()["s"] || "");
         $scope.searchStr = getRegexPatternForString(search); // This will trigger $watch expression to kick in
     }
-
 });
-
-//myApp.filter('count', function () {
-//    return function (collection, key) {
-//        var out = "test";
-//        console.trace();
-//        for (var i = 0; i < collection.length; i++) {
-//            //console.log(collection[i].pants);
-//            //var out = myApp.filter('filter')(collection[i].pants, "42", true);
-//        }
-//        return out;
-//    }
-//});
 
 myApp.filter('groupBy',
     function () {

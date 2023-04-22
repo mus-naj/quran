@@ -1,17 +1,20 @@
 <div class="top">
-    ابحث: <input name="regex_input" ng-trim="false" ng-keyup="$event.keyCode == 13 && searchButtonClicked()"
-                 type="text" class="search-input" ng-model="regex_query"/>
-    <button ng-click="searchButtonClicked()">ابحث</button>
+    <div id="search-input-container">
+        <h3>ابحث:</h3>
+        <input id="search-input" name="regex_input" ng-trim="false" ng-keyup="$event.keyCode == 13 && searchButtonClicked()"
+                     type="text" class="search-input" ng-model="regex_query"/>
+        <button ng-click="searchButtonClicked()">ابحث</button>
+    </div>
     <div id="input-options">
         <h3>إضافة:</h3>
-        <button ng-click="regex_query = regex_query + 'ـ'">أي حرف</button>
-        <button ng-click="regex_query = regex_query + '.'">حرف أو أكثر</button>
-        <button ng-click="regex_query = regex_query + '..'">كلمة أو أكثر</button>
+        <button ng-click="appendToCurrentTypingCursor('ـ')">أي حرف</button>
+        <button ng-click="appendToCurrentTypingCursor('.')">حرف أو أكثر</button>
+        <button ng-click="appendToCurrentTypingCursor('..')">كلمة أو أكثر</button>
         <br>
-        <button ng-click="regex_query = regex_query + 'َ'">فتحة</button>
-        <button ng-click="regex_query = regex_query + 'ِ'">كسرة</button>
-        <button ng-click="regex_query = regex_query + 'َُ'">ضمة</button>
-        <button ng-click="regex_query = regex_query + 'ّ'">شدة</button>
+        <button ng-click="appendToCurrentTypingCursor(FATHA)">فتحة</button>
+        <button ng-click="appendToCurrentTypingCursor(KASRA)">كسرة</button>
+        <button ng-click="appendToCurrentTypingCursor(DAMMA)">ضمة</button>
+        <button ng-click="appendToCurrentTypingCursor(SHADDA)">شدة</button>
     </div>
 
     <!--<br>-->
