@@ -85,7 +85,7 @@ function getRegexPatternForString(text)
     text = addAfterEachLetter(optionalChars(kul_alharakat), text);
 
     // use ".." to match any number of words
-    text = text.replace(/\s\.\.\s/g,"(?:\\s\.)*\\s?");
+    text = text.replace(/\s\.\.\s/g,"(?:\\s\.)*\\s");
     //text = text.replace(/\s\.\.\s/g,"(?:\\s[^"++"])*\\s");
 
     // use "." to match any number of chars in a word
