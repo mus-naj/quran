@@ -1,20 +1,6 @@
 var myApp = angular.module('myApp', ['ngSanitize','ngRoute']);
 
 //constants
-const not_space ='[^\\s]';
-const alharakat_mufradah = 'َُِ';
-const alharakat_tanween = 'ًٌٍ';
-const numbers='1234567890';
-const arabic_numbers='١٢٣٤٥٦٧٨٩٠';
-const alharakat_other = 'ّْ';
-const kul_alharakat = alharakat_mufradah + alharakat_tanween + alharakat_other + 'ٰ';
-const huroof = 'ابتثجحخدذرزسشصطضظعغفقكلمنهوي';
-const special_huroof = 'ةى';
-const ahrof_alela = 'اويى';
-const ahrof_hamzah = 'اأإآؤئءٰ';
-const kul_huroof = ahrof_hamzah + huroof + special_huroof;
-const huroof_wa_harakat = kul_huroof + kul_alharakat;
-
 const FATHATAN = "\u064B"; // ً
 const DAMMATAN = "\u064C"; // ٌ
 const KASRATAN = "\u064D"; // ٍ
@@ -23,6 +9,20 @@ const DAMMA = "\u064F"; // ُ
 const KASRA = "\u0650"; // ِ
 const SHADDA = "\u0651"; // ّ
 const SUKUN = "\u0652"; // ْ
+
+const not_space ='[^\\s]';
+const alharakat_mufradah = FATHA + DAMMA + KASRA;
+const alharakat_tanween = FATHATAN + DAMMATAN + KASRATAN;
+const numbers='1234567890';
+const arabic_numbers='١٢٣٤٥٦٧٨٩٠';
+const alharakat_other = SHADDA + SUKUN;
+const kul_alharakat = alharakat_mufradah + alharakat_tanween + alharakat_other + 'ٰ';
+const huroof = 'ابتثجحخدذرزسشصطضظعغفقكلمنهوي';
+const special_huroof = 'ةى';
+const ahrof_alela = 'اويى';
+const ahrof_hamzah = 'اأإآؤئءٰ';
+const kul_huroof = ahrof_hamzah + huroof + special_huroof;
+const huroof_wa_harakat = kul_huroof + kul_alharakat;
 
 var regex_flags='gu';
 
@@ -102,9 +102,13 @@ function getRegexPatternForString(text)
 
     text = text.replace(/(\d)/g,"\\$1");
 
+    // set SHADDA and Harakah in the proper order
     text = text.replace(SHADDA + FATHA,FATHA + SHADDA);
     text = text.replace(SHADDA + KASRA,KASRA + SHADDA);
     text = text.replace(SHADDA + DAMMA,DAMMA + SHADDA);
+
+    // remove duplicated spaces
+    text = text.replace(/\s+/g," ");
 
     text = new RegExp(text,regex_flags);
 
