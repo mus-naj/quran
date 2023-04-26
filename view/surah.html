@@ -1,0 +1,14 @@
+<div ng-include="'view/header.html'"></div>
+<section class="left" style="border-right:1px">
+    <input type="text" ng-model="searchText" placeholder="إبحث...">
+    <ul id="suwar-list">
+        <li ng-repeat="surah in all_suwar | filter:searchText">
+            <a href="#!/surah?id={{surah.order}}">{{surah.order}}. {{surah.title}}</a>
+        </li>
+    </ul>
+</section>
+
+<section class="right" style="border-right:1px">
+    <h2>سورة {{ selected_surah.title }}</h2>
+    <p id="ayah-{{ ayah.verse_id }}" ng-repeat="ayah in ayat_surah">{{ ayah.text }}<span class="link" ng-click="scrollTo('ayah-'+ ayah.verse_id)">({{ ayah.verse_id }})</span></p>
+</section>

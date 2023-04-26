@@ -1,3 +1,4 @@
+<div ng-include="'view/header.html'"></div>
 <div class="top">
     <div id="search-input-container">
         <h3>ابحث:</h3>
@@ -66,12 +67,13 @@
             <li ng-repeat="player in pagedItems[currentPage] | filter:query">
                 <p><span ng-bind-html="player.text_with_highlight"></span>
                     <b class="ayah-source">
-
+                        <a href="#!/surah?id={{ player.sura_id }}#ayah-{{ player.verse_id }}">
                         سورة
                         {{ suwar[player.sura_id - 1].title }}
                         -
                         الآية
                         {{ player.verse_id }}
+                        </a>
                     </b>
                 </p>
             </li>

@@ -187,13 +187,40 @@ myApp.config(function($routeProvider) {
             templateUrl : "view/search.html",
             controller : "AyatSearchController"
         })
-        //.when("/surah", {
-        //    templateUrl : "surah.html",
-        //    controller : "SurahCtrl"
-        //})
+        .when("/surah", {
+           templateUrl : "view/surah.html",
+           controller : "SurahCtrl"
+        })
         .otherwise({
             redirectTo: '/search'
         });
+});
+
+myApp.controller('SurahCtrl',function ($scope, $http, $routeParams, $location, $anchorScroll) {
+    let harakat_regex = /[\u064B-\u065F]/g;
+    $scope.all_suwar = all_suwar.map(function(surah) {
+        surah.title_without_harakat = surah.title.replace(harakat_regex, "");
+        return surah;
+    });
+    $scope.$watch('selected_surah', function(surah) {
+        $scope.ayat_surah = all_ayat.filter(item => item.sura_id === surah.order);
+    });
+    var selected_surah_id = ($location.search()["id"] || "1") - 1;
+    $scope.selected_surah = all_suwar[selected_surah_id];
+    $scope.searchText = "";
+
+    $scope.scrollTo = function(id) {
+        $location.hash(id);
+        $anchorScroll();
+    };
+
+    // scroll to Ayah
+    $scope.$on('$viewContentLoaded', function() {
+        setTimeout(function() {
+            $location.hash($location.hash());
+            $anchorScroll();
+        },200);
+    });
 });
 
 myApp.controller('AyatSearchController',function ($scope, $http, $routeParams, $location) {
@@ -402,6 +429,9 @@ myApp.controller('AyatSearchController',function ($scope, $http, $routeParams, $
 
     // I handle the location changes and make sure the view is updated.
     function handleLocationChange( event ) {
+        if ($location.path() != "/search") {
+            return;
+        }
         var search = ($location.search()["s"] || "");
         $scope.searchStr = getRegexPatternForString(search); // This will trigger $watch expression to kick in
     }
