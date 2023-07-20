@@ -10,5 +10,6 @@
 
 <section class="right" style="border-right:1px">
     <h2>سورة {{ selected_surah.title }}</h2>
+    <p ng-if="selected_surah.order != 1">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p>
     <p id="ayah-{{ ayah.verse_id }}" ng-repeat="ayah in ayat_surah">{{ ayah.text }}<span class="link" ng-click="scrollTo('ayah-'+ ayah.verse_id)">({{ ayah.verse_id }})</span></p>
 </section>

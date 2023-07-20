@@ -448,7 +448,8 @@ myApp.controller('AyatSearchController',function ($scope, $http, $routeParams, $
     function onScroll() {
         const element = angular.element(".scroll-container")[0];
         let loadingOffset = 150;
-        if (!$scope.isLoading && element.scrollTop + element.clientHeight + loadingOffset >= element.scrollHeight) {
+        let isFullyLoaded = $scope.visibleFoundWords.length === $scope.resultsGroup.length
+        if (!isFullyLoaded && !$scope.isLoading && element.scrollTop + element.clientHeight + loadingOffset >= element.scrollHeight) {
             $scope.isLoading = true;
             $scope.$apply($scope.loadMoreItems);
             $timeout(function() {
