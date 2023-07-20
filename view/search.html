@@ -5,6 +5,10 @@
         <input id="search-input" name="regex_input" ng-trim="false" ng-keyup="$event.keyCode == 13 && searchButtonClicked()"
                      type="text" class="search-input" ng-model="regex_query"/>
         <button ng-click="searchButtonClicked()">ابحث</button>
+        <br>
+        <label><b><input type="checkbox" ng-model="shouldRemoveLastHarakah"/></b>
+            <span>إزالة الحركة الأخيرة من نتائج البحث؟</span>
+        </label>
     </div>
     <div id="input-options">
         <h3>إضافة:</h3>
@@ -28,6 +32,15 @@
 <label for="hide-sidebar">خيارات البحث</label>
 
 <section class="left" style="border-right:1px">
+    <div id="filter-settings">
+        <h3>الترتيب</h3>
+        <label for="sort-by-counts"><input type="radio" ng-model="sortBy" value="counts" id="sort-by-counts"> بالعدد</label>
+        <label for="sort-by-letters"><input type="radio" ng-model="sortBy" value="letters" id="sort-by-letters">الحروف </label>
+        <label for="sort-by-none"><input type="radio" ng-model="sortBy" value="none" id="sort-by-none">ترتيب العثور عليها </label>
+        <br>
+        <h3>عدد التكرار</h3>
+        <label for="update-counts-per-selections"><input type="checkbox" ng-model="changeCountsAsPerFilter" id="update-counts-per-selections">تغيير الأعداد بحسب الاختيارات؟ </label>
+    </div>
     <div class="sidebar-title">
         <b>عدد الآيات
             ({{ filteredAyat.length }})</b>
@@ -39,11 +52,19 @@
                 </span>
         <span class="btn" ng-click="clearResultsFilter()">حدد الكل</span>
 
-        <div>
-            <div ng-repeat="results in resultsGroup">
+        <div class="scroll-container">
+            <div ng-repeat="results in visibleFoundWords">
                 <label><b><input type="checkbox" ng-model="useResults[results]"/>{{ :: results}}</b>
-                    <span>({{ :: countedAyahAttributes['matched'][results]+0 }})</span>
+                    <span>({{ countedAyahAttributes['matched'][results]+0 }})</span>
                 </label>
+            </div>
+            <div ng-if="isLoading">
+                <!-- Loading indicator or any other content when loading more items -->
+                <div class="loader-container">
+                    <div class="dot dot1"></div>
+                    <div class="dot dot2"></div>
+                    <div class="dot dot3"></div>
+                </div>
             </div>
         </div>
     </div><div class="filter">
@@ -55,7 +76,7 @@
     <div>
         <div ng-repeat="surah_order in suwarGroup">
             <label><b><input type="checkbox" ng-model="useSuwar[surah_order]"/>{{ :: suwar[surah_order-1].title}}</b>
-                <span>({{ :: countedAyahAttributes['sura_id'][surah_order]+0 }})</span>
+                <span>({{ countedAyahAttributes['sura_id'][surah_order]+0 }})</span>
             </label>
         </div>
     </div>

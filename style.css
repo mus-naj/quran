@@ -104,6 +104,11 @@ body{
     margin-top: 0.4em;
 }
 
+.link {
+    color: #1100ff;
+    cursor: pointer;
+}
+
 #data-list > li{
     list-style: none;
     padding: 0.1em 0.8em;
@@ -229,6 +234,14 @@ body{
     border:1px solid #f8f8f8;
 }
 
+.filter > div > div {
+    padding: 0.3em;
+}
+
+.filter > div > div:nth-child(2n+1) {
+    color: #444;
+}
+
 .filter > div > div:nth-child(2n){
     background: #f8f8f8;
 }
@@ -266,6 +279,7 @@ div#search-input-container {
     padding: 0.45em;
     margin: 0.15em;
     background: #e8e8e8;
+    vertical-align: bottom;
 }
 
 div#input-options {
@@ -275,6 +289,7 @@ div#input-options {
     border-radius: 0.4em;
     padding: 0.65em;
     background: #e8e8e8;
+    vertical-align: bottom;
 }
 
 h3 {
@@ -299,4 +314,45 @@ h3 {
         box-sizing: border-box;
     }
 
+}
+
+.loader-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.dot {
+    width: 10px;
+    height: 10px;
+    margin: 2.5px;
+    border-radius: 50%;
+    background-color: #004ea3;
+    opacity: 0.5;
+    animation-duration: 1.5s;
+    animation-iteration-count: infinite;
+    animation-timing-function: ease-in-out;
+}
+
+.dot1 {
+    animation-name: scaleAnim;
+}
+
+.dot2 {
+    animation-name: scaleAnim;
+    animation-delay: 0.2s;
+}
+
+.dot3 {
+    animation-name: scaleAnim;
+    animation-delay: 0.4s;
+}
+
+@keyframes scaleAnim {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.5);
+    }
 }

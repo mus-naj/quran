@@ -116,27 +116,24 @@ function getRegexPatternForString(text)
 }
 
 var uniqueItems = function (data, key) {
-    var result = [];
+    var result = new Set();
 
     for (var i = 0; i < data.length; i++) {
         const values_arr = valueShouldBeArray(data[i][key]);
 
-        for(var j=0;j<values_arr.length;j++){
-            const value=values_arr[j];
-            if (result.indexOf(value) === -1) {
-                result.push(value);
-            }
+        for (var j = 0; j < values_arr.length; j++) {
+            const value = values_arr[j];
+            result.add(value);
         }
-
     }
-    return result;
+
+    return Array.from(result);
 };
 
 function valueShouldBeArray(variable) {
     if (Array.isArray(variable)) {
         return variable;
-    }
-    else {
+    } else {
         return [variable];
     }
 }
@@ -223,7 +220,7 @@ myApp.controller('SurahCtrl',function ($scope, $http, $routeParams, $location, $
     });
 });
 
-myApp.controller('AyatSearchController',function ($scope, $http, $routeParams, $location) {
+myApp.controller('AyatSearchController',function ($scope, $http, $routeParams, $location, $timeout) {
     allow_pagination($scope);
     //init filters
     $scope.useResults = {};
@@ -238,9 +235,28 @@ myApp.controller('AyatSearchController',function ($scope, $http, $routeParams, $
     $scope.SHADDA = SHADDA
     $scope.SUKUN = SUKUN
 
+    var removeLastHarakah = !!($location.search()["remove_harakah"]);
+    $scope.shouldRemoveLastHarakah = removeLastHarakah
+
+    // Number of items to load initially
+    const initialLoadCount = 100;
+    $scope.visibleFoundWords = [];
+
+    // Function to load more items as the user scrolls
+    $scope.loadMoreItems = function() {
+        const totalVisibleItems = $scope.visibleFoundWords.length;
+        const batchSize = 50; // Number of items to load each time
+
+        if (totalVisibleItems < $scope.resultsGroup.length) {
+            const nextBatch = $scope.resultsGroup.slice(totalVisibleItems, totalVisibleItems + batchSize);
+            $scope.visibleFoundWords = $scope.visibleFoundWords.concat(nextBatch);
+        }
+    };
+
     var matchAyat = function (newValue) {
         var filtered_ayat=all_ayat.filter(function(item){
             var foundStr = item["text"].match($scope.searchStr);
+            // TODO: use foundStr: RegExpMatchArray, to highlight the text properly
             return foundStr!==null;
         });
 
@@ -254,6 +270,11 @@ myApp.controller('AyatSearchController',function ($scope, $http, $routeParams, $
             while( match = $scope.searchStr.exec( item["text"])){
                 var foundStr=match;
 
+                if((foundStr+"").trim() == "") {
+                    continue;
+                }
+
+                // remove the exact match if there is a captured group or more
                 if(foundStr.length>1){
                     foundStr.shift();
                 }
@@ -261,7 +282,15 @@ myApp.controller('AyatSearchController',function ($scope, $http, $routeParams, $
                 //item["text"].slice(foundStr.index,foundStr.index+foundStr[1].length)
 
                 item["exact_match"]=item["exact_match"].concat(foundStr); //remove first matching result
-                item["matched"]=item["matched"].concat(foundStr.map(function(str){ return removeHarakatOfLastHarf(str); }));
+                item["matched"]=item["matched"].concat(foundStr.map(function(str){
+                    if ($scope.shouldRemoveLastHarakah) {
+                        return removeHarakatOfLastHarf(str);
+                    } else {
+                        return str;
+                    }
+                }));
+
+                //"<span<span class='highlightedText'> </span>class='highlightedText'><span class='highlightedText'> </span>رَبَّنَا</span><span<span class='highlightedText'> </span>class='highlightedText'><span class='highlightedText'> </span>وَاجْعَلْنَا</span><span<span class='highlightedText'> </span>class='highlightedText'><span class='highlightedText'> </span>مُسْلِمَيْنِ</span><span<span class='highlightedText'> </span>class='highlightedText'><span<span class='highlightedText'> </span>class='highlightedText'><span class='highlightedText'> </span>لَكَ</span></span><span<span class='highlightedText'> </span>class='highlightedText'><span class='highlightedText'> </span>وَمِنْ</span><span<span class='highlightedText'> </span>class='highlightedText'><span class='highlightedText'> </span>ذُرِّيَّتِنَا</span><span<span class='highlightedText'> </span>class='highlightedText'><span class='highlightedText'> </span>أُمَّةً</span><span<span class='highlightedText'> </span>class='highlightedText'><span class='highlightedText'> </span>مُسْلِمَةً</span><span<span class='highlightedText'> </span>class='highlightedText'><span<span class='highlightedText'> </span>class='highlightedText'><span class='highlightedText'> </span>لَكَ</span></span><span<span class='highlightedText'> </span>class='highlightedText'><span class='highlightedText'> </span>وَأَرِنَا</span><span<span class='highlightedText'> </span>class='highlightedText'><span class='highlightedText'> </span>مَنَاسِكَنَا</span><span<span class='highlightedText'> </span>class='highlightedText'><span class='highlightedText'> </span>وَتُبْ</span><span<span class='highlightedText'> </span>class='highlightedText'><span class='highlightedText'> </span>عَلَيْنَا</span><span<span class='highlightedText'> </span>class='highlightedText'><span class='highlightedText'> </span>ۖ</span><span<span class='highlightedText'> </span>class='highlightedText'><span class='highlightedText'> </span>إِنَّكَ</span><span<span class='highlightedText'> </span>class='highlightedText'><span class='highlightedText'> </span>أَنْتَ</span><span<span class='highlightedText'> </span>class='highlightedText'><span class='highlightedText'> </span>التَّوَّابُ</span><span<span class='highlightedText'> </span>class='highlightedText'><span class='highlightedText'> </span>الرَّحِيمُ</span><span class='highlightedText'> </span>"
 
                 foundStr.forEach(function (str) {
                     item["text_with_highlight"]=item["text_with_highlight"].replace(new RegExp(str,'g'),"<span class='highlightedText'>"+str+"</span>");
@@ -284,13 +313,17 @@ myApp.controller('AyatSearchController',function ($scope, $http, $routeParams, $
             return item['matched']!==null;
         });
         $scope.countedAyahAttributes=countByAttributes($scope.foundAyat,['matched','sura_id']);
+        $scope.sortBy = "counts";
+        $scope.changeCountsAsPerFilter = false;
 
         // Watch the search results that are selected
         $scope.$watch(function () {
             return {
                 //foundAyat: $scope.foundAyat,
                 useResults: $scope.useResults,
-                useSuwar: $scope.useSuwar
+                useSuwar: $scope.useSuwar,
+                updateCounts: $scope.changeCountsAsPerFilter,
+                sortBy: $scope.sortBy
             }
         }, function (value) {
             var selected;
@@ -302,6 +335,21 @@ myApp.controller('AyatSearchController',function ($scope, $http, $routeParams, $
             };
 
             $scope.resultsGroup = uniqueItems($scope.foundAyat, 'matched');
+            // Sort the array in ascending order
+            $scope.sortResultsGroup = function() {
+                if ($scope.sortBy == "letters") {
+                    $scope.resultsGroup = $scope.resultsGroup.sort((a, b) => a.localeCompare(b));
+                } else if ($scope.sortBy == "counts") {
+                    $scope.resultsGroup = $scope.resultsGroup.sort(function (a, b) {
+                        var firstCounts = $scope.countedAyahAttributes['matched'][a]+0;
+                        firstCounts = isNaN(firstCounts) ? 0 : firstCounts;
+                        var secondCounts = $scope.countedAyahAttributes['matched'][b]+0;
+                        secondCounts = isNaN(secondCounts) ? 0 : secondCounts;
+                        return secondCounts - firstCounts;
+                    });
+                }
+            };
+
             var filterAfterResults = [];
             selected = false;
             for (var j in $scope.foundAyat) {
@@ -326,6 +374,24 @@ myApp.controller('AyatSearchController',function ($scope, $http, $routeParams, $
             }
 
             $scope.suwarGroup = uniqueItems($scope.foundAyat, 'sura_id');
+            $scope.sortSuwarGroup = function() {
+                if ($scope.sortBy == "letters") {
+                    $scope.suwarGroup = $scope.suwarGroup.sort(function (a, b) {
+                        var firstSurah = $scope.suwar[a-1].title;
+                        var secondSurah = $scope.suwar[b-1].title;
+                        return firstSurah.localeCompare(secondSurah);
+                    });
+                } else if ($scope.sortBy == "counts") {
+                    $scope.suwarGroup = $scope.suwarGroup.sort(function (a, b) {
+                        var firstCounts = $scope.countedAyahAttributes['sura_id'][a] + 0;
+                        firstCounts = isNaN(firstCounts) ? 0 : firstCounts;
+                        var secondCounts = $scope.countedAyahAttributes['sura_id'][b]+0;
+                        secondCounts = isNaN(secondCounts) ? 0 : secondCounts;
+                        return secondCounts - firstCounts;
+                    });
+                }
+            };
+
             var filterAfterSuwar = [];
             selected = false;
             for (var j in filterAfterResults) {
@@ -346,13 +412,15 @@ myApp.controller('AyatSearchController',function ($scope, $http, $routeParams, $
 
             $scope.filteredAyat = filterAfterSuwar;
 
-            //@todo: (checkbox) to update counts based on used filters
-            if(true){
-                $scope.countedAyahAttributes=countByAttributes($scope.filteredAyat,['matched','sura_id']);
+            if ($scope.changeCountsAsPerFilter) {
+                $scope.countedAyahAttributes = countByAttributes($scope.filteredAyat, ['matched', 'sura_id']);
+            } else {
+                $scope.countedAyahAttributes = countByAttributes($scope.foundAyat, ['matched', 'sura_id']);
             }
-            else{
-                $scope.countedAyahAttributes=countByAttributes($scope.foundAyat,['matched','sura_id']);
-            }
+
+            $scope.sortResultsGroup();
+            $scope.sortSuwarGroup();
+            $scope.visibleFoundWords = $scope.resultsGroup.slice(0, initialLoadCount);
 
             // reset pagination
             $scope.currentPage = 0;
@@ -376,6 +444,22 @@ myApp.controller('AyatSearchController',function ($scope, $http, $routeParams, $
 
     });
 
+    // Function to handle the scroll event and trigger loading more items
+    function onScroll() {
+        const element = angular.element(".scroll-container")[0];
+        let loadingOffset = 150;
+        if (!$scope.isLoading && element.scrollTop + element.clientHeight + loadingOffset >= element.scrollHeight) {
+            $scope.isLoading = true;
+            $scope.$apply($scope.loadMoreItems);
+            $timeout(function() {
+                $scope.isLoading = false;
+            }, 300);
+        }
+    }
+
+    // Bind the scroll event handler to the scrollable container
+    angular.element(".scroll-container").on('scroll', onScroll);
+
     //allow_pagination($scope);
 
     //just to test watcher
@@ -392,6 +476,7 @@ myApp.controller('AyatSearchController',function ($scope, $http, $routeParams, $
 
     $scope.searchButtonClicked = function() {
         $location.search( "s", $scope.regex_query );
+        $location.search( "remove_harakah", $scope.shouldRemoveLastHarakah );
     };
 
     $scope.appendToCurrentTypingCursor = function(text) {
