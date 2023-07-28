@@ -235,7 +235,12 @@ myApp.controller('AyatSearchController',function ($scope, $http, $routeParams, $
     $scope.SHADDA = SHADDA
     $scope.SUKUN = SUKUN
 
-    var removeLastHarakah = !!($location.search()["remove_harakah"]);
+    // boolean or string, to be used in the matched strings in the sidebar
+    var removeLastHarakah = $location.search()["remove_harakah"];
+    if (typeof removeLastHarakah === 'string' || removeLastHarakah instanceof String) {
+        // as the browser will have the string value only in case of 'false'
+        removeLastHarakah = removeLastHarakah !== 'false';
+    }
     $scope.shouldRemoveLastHarakah = removeLastHarakah
 
     // Number of items to load initially
@@ -274,6 +279,7 @@ myApp.controller('AyatSearchController',function ($scope, $http, $routeParams, $
                     continue;
                 }
 
+                let wholeMatchedPart = foundStr[0];
                 // remove the exact match if there is a captured group or more
                 if(foundStr.length>1){
                     foundStr.shift();
@@ -291,10 +297,13 @@ myApp.controller('AyatSearchController',function ($scope, $http, $routeParams, $
                 }));
 
                 //"<span<span class='highlightedText'> </span>class='highlightedText'><span class='highlightedText'> </span>رَبَّنَا</span><span<span class='highlightedText'> </span>class='highlightedText'><span class='highlightedText'> </span>وَاجْعَلْنَا</span><span<span class='highlightedText'> </span>class='highlightedText'><span class='highlightedText'> </span>مُسْلِمَيْنِ</span><span<span class='highlightedText'> </span>class='highlightedText'><span<span class='highlightedText'> </span>class='highlightedText'><span class='highlightedText'> </span>لَكَ</span></span><span<span class='highlightedText'> </span>class='highlightedText'><span class='highlightedText'> </span>وَمِنْ</span><span<span class='highlightedText'> </span>class='highlightedText'><span class='highlightedText'> </span>ذُرِّيَّتِنَا</span><span<span class='highlightedText'> </span>class='highlightedText'><span class='highlightedText'> </span>أُمَّةً</span><span<span class='highlightedText'> </span>class='highlightedText'><span class='highlightedText'> </span>مُسْلِمَةً</span><span<span class='highlightedText'> </span>class='highlightedText'><span<span class='highlightedText'> </span>class='highlightedText'><span class='highlightedText'> </span>لَكَ</span></span><span<span class='highlightedText'> </span>class='highlightedText'><span class='highlightedText'> </span>وَأَرِنَا</span><span<span class='highlightedText'> </span>class='highlightedText'><span class='highlightedText'> </span>مَنَاسِكَنَا</span><span<span class='highlightedText'> </span>class='highlightedText'><span class='highlightedText'> </span>وَتُبْ</span><span<span class='highlightedText'> </span>class='highlightedText'><span class='highlightedText'> </span>عَلَيْنَا</span><span<span class='highlightedText'> </span>class='highlightedText'><span class='highlightedText'> </span>ۖ</span><span<span class='highlightedText'> </span>class='highlightedText'><span class='highlightedText'> </span>إِنَّكَ</span><span<span class='highlightedText'> </span>class='highlightedText'><span class='highlightedText'> </span>أَنْتَ</span><span<span class='highlightedText'> </span>class='highlightedText'><span class='highlightedText'> </span>التَّوَّابُ</span><span<span class='highlightedText'> </span>class='highlightedText'><span class='highlightedText'> </span>الرَّحِيمُ</span><span class='highlightedText'> </span>"
+                var wholeMatchedPartWithHighlight = wholeMatchedPart;
 
                 foundStr.forEach(function (str) {
-                    item["text_with_highlight"]=item["text_with_highlight"].replace(new RegExp(str,'g'),"<span class='highlightedText'>"+str+"</span>");
+                    wholeMatchedPartWithHighlight=wholeMatchedPartWithHighlight.replace(new RegExp(str,'g'),"<span class='highlightedText'>"+str+"</span>");
                 });
+
+                item["text_with_highlight"]=item["text_with_highlight"].replace(new RegExp(wholeMatchedPart,'g'), wholeMatchedPartWithHighlight);
             }
 
             return item;
@@ -350,6 +359,7 @@ myApp.controller('AyatSearchController',function ($scope, $http, $routeParams, $
                 }
             };
 
+            var uniqueAyat = new Set();
             var filterAfterResults = [];
             selected = false;
             for (var j in $scope.foundAyat) {
@@ -361,7 +371,7 @@ myApp.controller('AyatSearchController',function ($scope, $http, $routeParams, $
 
                         for(var k=0;k<matches.length;k++){
                             if (i == matches[k]) {
-                                filterAfterResults.push(p);
+                                uniqueAyat.add(p);
                                 break;
                             }
                         }
@@ -369,6 +379,7 @@ myApp.controller('AyatSearchController',function ($scope, $http, $routeParams, $
                     }
                 }
             }
+            filterAfterResults = Array.from(uniqueAyat);
             if (!selected) {
                 filterAfterResults = $scope.foundAyat;
             }

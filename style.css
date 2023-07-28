@@ -88,10 +88,8 @@ ul#suwar-list > li {
 
 /** more **/
 .highlightedText {
-    /*background: yellow;*/
-    /*background: rgba(255, 255, 0, 0.64);*/
+    background: rgba(255, 255, 169, 0.75);
     color: #d11f1f;
-    /*padding: 0 0.2em;*/
 }
 
 body{
