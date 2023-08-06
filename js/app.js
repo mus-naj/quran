@@ -24,13 +24,13 @@ const ahrof_hamzah = 'اأإآؤئءٰ';
 const kul_huroof = ahrof_hamzah + huroof + special_huroof;
 const huroof_wa_harakat = kul_huroof + kul_alharakat;
 
-var regex_flags='gu';
+var regex_flags='gud';
 
 try{
     new RegExp("",regex_flags);
 }
 catch(exp){
-    regex_flags='g';
+    regex_flags='gd';
 }
 
 function arabic_to_english_number(number){
@@ -178,6 +178,58 @@ var countByAttributes= function(data, attributes){
     return countedData;
 };
 
+function replaceRange(string, start, end, substitute) {
+    return string.substring(0, start) + substitute + string.substring(end);
+}
+
+function highlightText(input, regex, highlightOnlyGroups) {
+    let startHighlightTag = "<span class='highlightedText'>";
+    let endHighlightTag = "</span>";
+    let startHighlightTagLength = startHighlightTag.length;
+    let endHighlightTagLength = endHighlightTag.length;
+    let addedStartTagsIndices = [];
+    let addedEndTagsIndices = [];
+    var highlightedText = input;
+
+    function getModifiedContentsLengthBefore(start) {
+        let startTagsLength = addedStartTagsIndices.filter((index) => index <= start).length * startHighlightTagLength;
+        let endTagsLength = addedEndTagsIndices.filter((index) => index <= start).length * endHighlightTagLength;
+        return startTagsLength + endTagsLength;
+    }
+
+    var matches = null;
+    while (matches = regex.exec(input)) {
+        if (matches.length === 0 || (matches[0]+"").trim() == "") {
+            if (regex.lastIndex === matches.index) {
+                // prevent infinite loop
+                regex.lastIndex += 1;
+            }
+            continue;
+        }
+
+        // highlight only captured groups
+        if (highlightOnlyGroups && matches.length > 1) {
+            matches.shift(1);
+            matches.indices.shift(1);
+        }
+
+        for (let i = 0; i < matches.length; i++) {
+            let currentMatch = matches[i];
+            let currentMatchIndex = matches.indices[i];
+            let start = currentMatchIndex[0];
+            let modifiedStart = start + getModifiedContentsLengthBefore(start);
+            let end = currentMatchIndex[1];
+            let length = end - start;
+            let modifiedEnd = modifiedStart + length;
+            addedStartTagsIndices.push(start);
+            addedEndTagsIndices.push(end);
+            highlightedText = replaceRange(highlightedText, modifiedStart, modifiedEnd, startHighlightTag + currentMatch + endHighlightTag);
+        }
+    }
+
+    return highlightedText;
+}
+
 myApp.config(function($routeProvider) {
     $routeProvider
         .when("/search", {
@@ -299,19 +351,9 @@ myApp.controller('AyatSearchController',function ($scope, $http, $routeParams, $
                         return str;
                     }
                 }));
-
-                //"<span<span class='highlightedText'> </span>class='highlightedText'><span class='highlightedText'> </span>رَبَّنَا</span><span<span class='highlightedText'> </span>class='highlightedText'><span class='highlightedText'> </span>وَاجْعَلْنَا</span><span<span class='highlightedText'> </span>class='highlightedText'><span class='highlightedText'> </span>مُسْلِمَيْنِ</span><span<span class='highlightedText'> </span>class='highlightedText'><span<span class='highlightedText'> </span>class='highlightedText'><span class='highlightedText'> </span>لَكَ</span></span><span<span class='highlightedText'> </span>class='highlightedText'><span class='highlightedText'> </span>وَمِنْ</span><span<span class='highlightedText'> </span>class='highlightedText'><span class='highlightedText'> </span>ذُرِّيَّتِنَا</span><span<span class='highlightedText'> </span>class='highlightedText'><span class='highlightedText'> </span>أُمَّةً</span><span<span class='highlightedText'> </span>class='highlightedText'><span class='highlightedText'> </span>مُسْلِمَةً</span><span<span class='highlightedText'> </span>class='highlightedText'><span<span class='highlightedText'> </span>class='highlightedText'><span class='highlightedText'> </span>لَكَ</span></span><span<span class='highlightedText'> </span>class='highlightedText'><span class='highlightedText'> </span>وَأَرِنَا</span><span<span class='highlightedText'> </span>class='highlightedText'><span class='highlightedText'> </span>مَنَاسِكَنَا</span><span<span class='highlightedText'> </span>class='highlightedText'><span class='highlightedText'> </span>وَتُبْ</span><span<span class='highlightedText'> </span>class='highlightedText'><span class='highlightedText'> </span>عَلَيْنَا</span><span<span class='highlightedText'> </span>class='highlightedText'><span class='highlightedText'> </span>ۖ</span><span<span class='highlightedText'> </span>class='highlightedText'><span class='highlightedText'> </span>إِنَّكَ</span><span<span class='highlightedText'> </span>class='highlightedText'><span class='highlightedText'> </span>أَنْتَ</span><span<span class='highlightedText'> </span>class='highlightedText'><span class='highlightedText'> </span>التَّوَّابُ</span><span<span class='highlightedText'> </span>class='highlightedText'><span class='highlightedText'> </span>الرَّحِيمُ</span><span class='highlightedText'> </span>"
-                var wholeMatchedPartWithHighlight = wholeMatchedPart;
-
-                foundStr.forEach(function (str) {
-                    if((foundStr+"").trim() == "") {
-                        return;
-                    }
-                    wholeMatchedPartWithHighlight=wholeMatchedPartWithHighlight.replace(new RegExp(str,'g'),"<span class='highlightedText'>"+str+"</span>");
-                });
-
-                ayah["text_with_highlight"]=ayah["text_with_highlight"].replace(new RegExp(wholeMatchedPart,'g'), wholeMatchedPartWithHighlight);
             }
+
+            ayah["text_with_highlight"]=highlightText(ayah["text_with_highlight"], $scope.searchStr);
 
             return ayah;
         });

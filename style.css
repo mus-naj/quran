@@ -92,6 +92,11 @@ ul#suwar-list > li {
     color: #d11f1f;
 }
 
+.highlightedText > .highlightedText {
+    color: #ec8000;
+    background: rgb(255 255 255 / 75%);
+}
+
 body{
     direction: rtl;
 }
