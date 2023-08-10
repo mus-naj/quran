@@ -296,13 +296,13 @@ myApp.controller('AyatSearchController',function ($scope, $http, $routeParams, $
     $scope.shouldRemoveLastHarakah = removeLastHarakah
 
     // Number of items to load initially
-    const initialLoadCount = 100;
+    const initialLoadCount = 200;
     $scope.visibleFoundWords = [];
 
     // Function to load more items as the user scrolls
     $scope.loadMoreItems = function() {
         const totalVisibleItems = $scope.visibleFoundWords.length;
-        const batchSize = 50; // Number of items to load each time
+        const batchSize = 1000; // Number of items to load each time
 
         if (totalVisibleItems < $scope.resultsGroup.length) {
             const nextBatch = $scope.resultsGroup.slice(totalVisibleItems, totalVisibleItems + batchSize);
@@ -313,7 +313,6 @@ myApp.controller('AyatSearchController',function ($scope, $http, $routeParams, $
     var matchAyat = function (newValue) {
         var filtered_ayat=all_ayat.filter(function(item){
             var foundStr = item["text"].match($scope.searchStr);
-            // TODO: use foundStr: RegExpMatchArray, to highlight the text properly
             return foundStr!==null;
         });
 
@@ -489,7 +488,8 @@ myApp.controller('AyatSearchController',function ($scope, $http, $routeParams, $
             }
         }, function () {
             filterListener();
-            if ($scope.visibleFoundWords.length === 0 || $scope.sortBy == "counts") {
+            let resetPositions = $scope.changeCountsAsPerFilter && $scope.sortBy === "counts";
+            if ($scope.visibleFoundWords.length === 0 || resetPositions) {
                 $scope.visibleFoundWords = $scope.resultsGroup.slice(0, initialLoadCount);
             }
         }, true);
