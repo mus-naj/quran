@@ -230,6 +230,28 @@ function highlightText(input, regex, highlightOnlyGroups) {
     return highlightedText;
 }
 
+function getTrueKeys(input) {
+    const trueKeys = [];
+
+    for (const key in input) {
+        if (input.hasOwnProperty(key) && input[key] === true) {
+            trueKeys.push(key);
+        }
+    }
+
+    return trueKeys;
+}
+
+function mapToTrueObject(keys) {
+    const result = {};
+
+    keys.forEach(key => {
+        result[key] = true;
+    });
+
+    return result;
+}
+
 myApp.config(function($routeProvider) {
     $routeProvider
         .when("/search", {
@@ -275,8 +297,19 @@ myApp.controller('SurahCtrl',function ($scope, $http, $routeParams, $location, $
 myApp.controller('AyatSearchController',function ($scope, $http, $routeParams, $location, $timeout) {
     allow_pagination($scope);
     //init filters
-    $scope.useResults = {};
-    $scope.useSuwar = {};
+    let urlQueryParameters = $location.search();
+    let filter_results = (urlQueryParameters["filter_results"] || "");
+    if (filter_results != getTrueKeys($scope.useResults).join(",")) {
+        $scope.useResults = mapToTrueObject(filter_results.split(","));
+    } else {
+        $scope.useResults = {};
+    }
+    let filter_suwar = (urlQueryParameters["filter_suwar"] || "");
+    if (filter_suwar != getTrueKeys($scope.useSuwar).join(",")) {
+        $scope.useSuwar = mapToTrueObject(filter_suwar.split(","));
+    } else {
+        $scope.useSuwar = {};
+    }
 
     $scope.suwar=all_suwar;
     $scope.searchStr='';
@@ -360,9 +393,6 @@ myApp.controller('AyatSearchController',function ($scope, $http, $routeParams, $
 
     $scope.$watch('searchStr', function(newValue) {
 
-        //reset filters
-        $scope.useResults = {};
-        $scope.useSuwar = {};
         $scope.query='';
 
         $scope.foundAyat = matchAyat(newValue);
@@ -424,6 +454,10 @@ myApp.controller('AyatSearchController',function ($scope, $http, $routeParams, $
                 filterAfterResults = $scope.foundAyat;
             }
 
+            if (filterAfterResults.length == 0) {
+                $location.search( "filter_results", "");
+            }
+
             $scope.suwarGroup = uniqueItems($scope.foundAyat, 'sura_id');
             $scope.sortSuwarGroup = function() {
                 if ($scope.sortBy == "letters") {
@@ -461,6 +495,10 @@ myApp.controller('AyatSearchController',function ($scope, $http, $routeParams, $
                 filterAfterSuwar = filterAfterResults;
             }
 
+            if (filterAfterSuwar.length == 0) {
+                $location.search( "filter_suwar", "");
+            }
+
             $scope.filteredAyat = filterAfterSuwar;
 
             if ($scope.changeCountsAsPerFilter) {
@@ -491,6 +529,14 @@ myApp.controller('AyatSearchController',function ($scope, $http, $routeParams, $
             let resetPositions = $scope.changeCountsAsPerFilter && $scope.sortBy === "counts";
             if ($scope.visibleFoundWords.length === 0 || resetPositions) {
                 $scope.visibleFoundWords = $scope.resultsGroup.slice(0, initialLoadCount);
+            }
+            let filterResultsKeys = getTrueKeys($scope.useResults).join(",");
+            if ($location.search()["filter_results"] !== filterResultsKeys) {
+                $location.search( "filter_results", filterResultsKeys);
+            }
+            let filterSuwarKeys = getTrueKeys($scope.useSuwar).join(",");
+            if ($location.search()["filter_suwar"] !== filterSuwarKeys) {
+                $location.search( "filter_suwar", filterSuwarKeys);
             }
         }, true);
 
@@ -550,6 +596,9 @@ myApp.controller('AyatSearchController',function ($scope, $http, $routeParams, $
     $scope.searchStr=getRegexPatternForString(initSearchStr);
 
     $scope.searchButtonClicked = function() {
+        //reset filters
+        $location.search( "filter_results", "");
+        $location.search( "filter_suwar", "");
         $location.search( "s", $scope.regex_query );
         $location.search( "remove_harakah", $scope.shouldRemoveLastHarakah );
     };
@@ -592,8 +641,19 @@ myApp.controller('AyatSearchController',function ($scope, $http, $routeParams, $
         if ($location.path() != "/search") {
             return;
         }
-        var search = ($location.search()["s"] || "");
-        $scope.searchStr = getRegexPatternForString(search); // This will trigger $watch expression to kick in
+        let urlQueryParameters = $location.search();
+        let search = (urlQueryParameters["s"] || "");
+        if (search !== $scope.regex_query) {
+            $scope.searchStr = getRegexPatternForString(search); // This will trigger $watch expression to kick in
+        }
+        let filter_results = (urlQueryParameters["filter_results"] || "");
+        if (filter_results !== getTrueKeys($scope.useResults).join(",")) {
+            $scope.useResults = mapToTrueObject(filter_results.split(","));
+        }
+        let filter_suwar = (urlQueryParameters["filter_suwar"] || "");
+        if (filter_suwar !== getTrueKeys($scope.useSuwar).join(",")) {
+            $scope.useSuwar = mapToTrueObject(filter_suwar.split(","));
+        }
     }
 });
 
