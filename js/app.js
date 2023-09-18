@@ -454,7 +454,7 @@ myApp.controller('AyatSearchController',function ($scope, $http, $routeParams, $
                 filterAfterResults = $scope.foundAyat;
             }
 
-            if (filterAfterResults.length == 0) {
+            if (filterAfterResults.length == 0 && $scope.foundAyat.length > 0) {
                 $location.search( "filter_results", "");
             }
 
@@ -495,7 +495,7 @@ myApp.controller('AyatSearchController',function ($scope, $http, $routeParams, $
                 filterAfterSuwar = filterAfterResults;
             }
 
-            if (filterAfterSuwar.length == 0) {
+            if (filterAfterSuwar.length == 0 && $scope.foundAyat.length > 0) {
                 $location.search( "filter_suwar", "");
             }
 
@@ -530,14 +530,15 @@ myApp.controller('AyatSearchController',function ($scope, $http, $routeParams, $
             if ($scope.visibleFoundWords.length === 0 || resetPositions) {
                 $scope.visibleFoundWords = $scope.resultsGroup.slice(0, initialLoadCount);
             }
-            let filterResultsKeys = getTrueKeys($scope.useResults).join(",");
-            if ($location.search()["filter_results"] !== filterResultsKeys) {
-                $location.search( "filter_results", filterResultsKeys);
-            }
-            let filterSuwarKeys = getTrueKeys($scope.useSuwar).join(",");
-            if ($location.search()["filter_suwar"] !== filterSuwarKeys) {
-                $location.search( "filter_suwar", filterSuwarKeys);
-            }
+            // First fix the bug of having the useResults updated and causing the scroll position to reset to top, then uncomment this:
+            // let filterResultsKeys = getTrueKeys($scope.useResults).join(",");
+            // if ($location.search()["filter_results"] !== filterResultsKeys) {
+            //     $location.search( "filter_results", filterResultsKeys);
+            // }
+            // let filterSuwarKeys = getTrueKeys($scope.useSuwar).join(",");
+            // if ($location.search()["filter_suwar"] !== filterSuwarKeys) {
+            //     $location.search( "filter_suwar", filterSuwarKeys);
+            // }
         }, true);
 
         $scope.$watch(function () {
@@ -596,11 +597,23 @@ myApp.controller('AyatSearchController',function ($scope, $http, $routeParams, $
     $scope.searchStr=getRegexPatternForString(initSearchStr);
 
     $scope.searchButtonClicked = function() {
+        $location.search( "s", $scope.regex_query );
+        $location.search( "remove_harakah", $scope.shouldRemoveLastHarakah );
         //reset filters
         $location.search( "filter_results", "");
         $location.search( "filter_suwar", "");
-        $location.search( "s", $scope.regex_query );
-        $location.search( "remove_harakah", $scope.shouldRemoveLastHarakah );
+    };
+
+    // Function to update the URL with the current search parameters
+    $scope.updateUrl = function () {
+        // Get the current search parameters from $location.search()
+        var currentSearchParams = $location.search();
+
+        currentSearchParams.filter_results = getTrueKeys($scope.useResults).join(",");
+        currentSearchParams.filter_suwar = getTrueKeys($scope.useSuwar).join(",");
+
+        // Set the updated search parameters using $location.search()
+        $location.search(currentSearchParams);
     };
 
     $scope.appendToCurrentTypingCursor = function(text) {
