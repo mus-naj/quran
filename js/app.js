@@ -332,6 +332,7 @@ myApp.controller('AyatSearchController',function ($scope, $http, $routeParams, $
     const initialLoadCount = 200;
     $scope.visibleFoundWords = [];
     $scope.showAllWords = false;
+    $scope.showOnlySelectedResults = false;
 
     // Function to load more items as the user scrolls
     $scope.loadMoreItems = function() {

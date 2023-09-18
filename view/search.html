@@ -42,8 +42,9 @@
         <br>
         <h3>عدد التكرار</h3>
         <label for="update-counts-per-selections"><input type="checkbox" ng-model="changeCountsAsPerFilter" id="update-counts-per-selections">تغيير الأعداد بحسب الاختيارات؟ </label>
-        <h3>العرض التدريجي</h3>
-        <label for="show-all-search-results"><input type="checkbox" ng-model="showAllWords" id="show-all-search-results">عرض كل نتائج البحث دفعة واحدة؟ </label>
+        <h3>العرض</h3>
+        <label for="show-all-search-results"><input type="checkbox" ng-model="showAllWords" id="show-all-search-results">عرض كل نتائج البحث دفعة واحدة؟ </label><br>
+        <label for="show-only-selected-results"><input type="checkbox" ng-model="showOnlySelectedResults" id="show-only-selected-results">عرض قفط ما تم اختياره من نتائج البحث؟ </label>
     </div>
     <div class="sidebar-title">
         <b>عدد الآيات
@@ -57,7 +58,7 @@
         <span class="btn" ng-click="clearResultsFilter()">حدد الكل</span>
 
         <div class="scroll-container">
-            <div ng-repeat="results in visibleFoundWords">
+            <div ng-repeat="results in visibleFoundWords" ng-if="!showOnlySelectedResults || useResults[results]">
                 <label><b><input type="checkbox" ng-model="useResults[results]"/>{{ :: results}}</b>
                     <span>({{ countedAyahAttributes['matched'][results]+0 }})</span>
                 </label>
