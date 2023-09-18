@@ -331,6 +331,7 @@ myApp.controller('AyatSearchController',function ($scope, $http, $routeParams, $
     // Number of items to load initially
     const initialLoadCount = 200;
     $scope.visibleFoundWords = [];
+    $scope.showAllWords = false;
 
     // Function to load more items as the user scrolls
     $scope.loadMoreItems = function() {
@@ -528,7 +529,11 @@ myApp.controller('AyatSearchController',function ($scope, $http, $routeParams, $
             filterListener();
             let resetPositions = $scope.changeCountsAsPerFilter && $scope.sortBy === "counts";
             if ($scope.visibleFoundWords.length === 0 || resetPositions) {
-                $scope.visibleFoundWords = $scope.resultsGroup.slice(0, initialLoadCount);
+                if ($scope.showAllWords) {
+                    $scope.visibleFoundWords = $scope.resultsGroup;
+                } else {
+                    $scope.visibleFoundWords = $scope.resultsGroup.slice(0, initialLoadCount);
+                }
             }
             // First fix the bug of having the useResults updated and causing the scroll position to reset to top, then uncomment this:
             // let filterResultsKeys = getTrueKeys($scope.useResults).join(",");
@@ -548,7 +553,11 @@ myApp.controller('AyatSearchController',function ($scope, $http, $routeParams, $
             }
         }, function () {
             filterListener();
-            $scope.visibleFoundWords = $scope.resultsGroup.slice(0, initialLoadCount);
+            if ($scope.showAllWords) {
+                $scope.visibleFoundWords = $scope.resultsGroup;
+            } else {
+                $scope.visibleFoundWords = $scope.resultsGroup.slice(0, initialLoadCount);
+            }
         }, true);
 
 
