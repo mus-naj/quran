@@ -216,6 +216,9 @@ function highlightText(input, regex, highlightOnlyGroups) {
         for (let i = 0; i < matches.length; i++) {
             let currentMatch = matches[i];
             let currentMatchIndex = matches.indices[i];
+            if (!currentMatchIndex) {
+                continue;
+            }
             let start = currentMatchIndex[0];
             let modifiedStart = start + getModifiedContentsLengthBefore(start);
             let end = currentMatchIndex[1];
