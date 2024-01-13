@@ -23,6 +23,55 @@
         <button ng-click="appendToCurrentTypingCursor(SUKUN)">سكون</button>
     </div>
 
+    <button ng-click="toggleHelpVisibility()">
+        {{ helpVisible ? 'إخفاء المساعدة' : 'عرض المساعدة' }}
+    </button>
+
+    <button ng-click="openPopup()">للبحث ضمن اختيارات</button>
+
+    <div id="popup" class="popup">
+        <h3>تحديد خيارات البحث</h3>
+        <p class="info-text">أدخل الخيارات التي ترغب في البحث بها، مثلاً: يمكنك البحث عن الآيات التي تحتوي على "آدم" أو "عيسى".</p>
+        <div class="input-container" ng-repeat="input in inputs track by $index">
+            <input type="text" ng-model="input.value" placeholder="الخيار {{$index + 1}}" id="input_{{$index}}" ng-keydown="handleEnter($event, $index, inputs.length)">
+            <span class="remove-input" ng-if="$index > 1" ng-click="removeInput($index)">حذف</span>
+        </div>
+        <span class="add-input" ng-click="addInput()">+ إضافة خيار</span>
+        <br>
+        <button class="confirm-btn" ng-click="done()">أضف لنص البحث</button>
+        <button class="close-btn" ng-click="closePopup()">إغلاق</button>
+    </div>
+
+    <div ng-show="helpVisible" class="help-section">
+        <h2>كيفية استخدام خانة البحث</h2>
+
+        <div class="example">
+            <strong>البحث باستخدام حرف واحد (ـ):</strong><br>
+            للبحث عن كلمات تحتوي على حرف مفتوح يتبعه مد بالألف وهمزة، استخدم الزر "<span class="highlight">أي حرف (ـ)</span>" أو اكتب (ـ) وبعدها الفتحة والحروف المطلوبة. <br>
+            مثال: "<span class="highlight">ـَاء</span>" يتناسب مع "<span class="highlight">مَاء</span>"، "<span class="highlight">سَاء</span>"، "<span class="highlight">جَاء</span>"، وأي كلمة تحتوي على حرف مفتوح يتبعه مد بالألف وهمزة مثل "أَ<span class="highlight">ضَاء</span>َتْ".
+            <br>
+            <button class="button-link" ng-click="openNewTab('ـَاء')">اظهر كل نتائج البحث</button>
+        </div>
+
+        <div class="example">
+            <strong>البحث باستخدام حرف أو أكثر (.):</strong><br>
+            للبحث عن كلمات تبدأ بألف ولام وحرف الحاء، استخدم الزر "<span class="highlight">حرف أو أكثر (.)</span>" أو اكتب (.) بعد كتابة الحروف. <br>
+            مثال: "<span class="highlight"> الح.</span>" يتناسب مع "<span class="highlight">الْحَقُّ</span>"، "<span class="highlight">الْحَمْدُ</span>"، وجميع الكلمات التي تبدأ بألف ولام وحرف الحاء مع مراعاة وجود مسافة لتحديد أن الحرف الأول في بداية الكلمة.
+            <br>
+            <button class="button-link" ng-click="openNewTab(' الح.')">اظهر كل نتائج البحث</button>
+        </div>
+
+        <div class="example">
+            <strong>البحث عن كلمة أو أكثر (..):</strong><br>
+            للبحث عن مجموعة من الكلمات، استخدم الزر "<span class="highlight">كلمة أو أكثر (..)</span>". <br>
+            مثال: "<span class="highlight">إذا .. قالوا</span>" يتناسب مع: <br>
+            <ul>
+                <li><span class="highlight">"إِذَا لَقُوا الَّذِينَ آمَنُوا قَالُوا"</span></li>
+                <li><span class="highlight">"إِذَا قِيلَ لَهُمُ اتَّبِعُوا مَا أَنْزَلَ اللَّهُ قَالُوا"</span></li>
+            </ul>
+            <button class="button-link" ng-click="openNewTab('إذا .. قالوا')">اظهر كل نتائج البحث</button>
+        </div>
+    </div>
     <!--<br>-->
     <!--ضمن النتائج: <input name="company" type="text" class="search-input" ng-model="query"/>-->
 

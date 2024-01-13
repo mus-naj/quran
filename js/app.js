@@ -681,6 +681,76 @@ myApp.controller('AyatSearchController',function ($scope, $http, $routeParams, $
             $scope.useSuwar = mapToTrueObject(filter_suwar.split(","));
         }
     }
+
+    $scope.helpVisible = false;
+
+    $scope.toggleHelpVisibility = function() {
+        $scope.helpVisible = !$scope.helpVisible;
+    };
+
+    $scope.openNewTab = function (queryString) {
+        // Get the current URL path
+        var currentPath = window.location.pathname;
+
+        // Construct the URL with the current path and specified query parameters
+        var url = currentPath + '#!/search?s=' + encodeURIComponent(queryString);
+
+        // Open a new tab with the constructed URL
+        window.open(url, '_blank');
+    };
+
+    $scope.inputs = [{
+        value: ''
+    }, {
+        value: ''
+    }];
+
+    $scope.openPopup = function () {
+        document.getElementById('popup').style.display = 'block';
+    };
+
+    $scope.removeInput = function (index) {
+        if ($scope.inputs.length > 2) {
+            $scope.inputs.splice(index, 1);
+        } else {
+            alert('يجب أن يكون هناك حقلان على الأقل.');
+        }
+    };
+
+    $scope.handleEnter = function($event, index, length) {
+        // Check if the key pressed is Enter
+        let enterKeyCode = 13;
+        if ($event.keyCode === enterKeyCode) {
+            // Prevent the default action
+            $event.preventDefault();
+
+            if (index + 1 < length) {
+                // If it's not the last input, focus on the next one
+                document.getElementById("input_" + (index + 1)).focus();
+            } else {
+                // If it's the last input, call `done()`
+                $scope.done();
+            }
+        }
+    };
+
+    $scope.addInput = function () {
+        $scope.inputs.push({
+            value: ''
+        });
+    };
+
+    $scope.done = function () {
+        var regexPattern = "(" + $scope.inputs.map(function (input) {
+            return input.value;
+        }).join("|") + ")";
+        $scope.appendToCurrentTypingCursor(regexPattern);
+        $scope.closePopup();
+    };
+
+    $scope.closePopup = function () {
+        document.getElementById('popup').style.display = 'none';
+    };
 });
 
 myApp.filter('groupBy',

@@ -359,3 +359,116 @@ h3 {
         transform: scale(1.5);
     }
 }
+
+.help-section {
+    margin-top: 20px;
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.help-section {
+    padding: 20px;
+    border: 1px solid #dee2e6; /* Light gray border */
+    border-radius: 10px;
+    background-color: #ffffff; /* White background */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Shadow effect */
+}
+h2 {
+    color: #007BFF; /* Blue heading */
+}
+
+.example {
+    margin-bottom: 20px;
+}
+
+.button-link {
+    display: inline-block;
+    padding: 5px 10px;
+    margin: 0;
+    font-size: 14px;
+    font-weight: bold;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.button-link:hover {
+    background-color: #007BFF; /* Hover color */
+    color: #ffffff; /* Text color on hover */
+}
+
+.highlight {
+    font-weight: bold;
+    color: #28a745; /* Green */
+}
+
+.popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #f9f9f9;
+    padding: 20px;
+    border: 1px solid #ccc;
+    z-index: 1;
+    width: 300px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.input-container {
+    margin-bottom: 10px;
+}
+
+.popup input {
+    padding: 8px;
+    width: 80%;
+    margin-right: 5%;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.remove-input {
+    cursor: pointer;
+    color: red;
+    margin-left: 5%;
+}
+
+.add-input {
+    cursor: pointer;
+    color: #007BFF;
+    margin-left: 5%;
+}
+
+.confirm-btn {
+    background-color: #28A745;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-right: 5%;
+}
+
+.confirm-btn:hover {
+    background-color: #1c8534;
+}
+
+.close-btn {
+    background-color: #dc3545;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-left: 5%;
+}
+
+.close-btn:hover {
+    background-color: #a61f2c;
+}
