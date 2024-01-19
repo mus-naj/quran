@@ -15,12 +15,23 @@
         <button ng-click="appendToCurrentTypingCursor('ـ')">أي حرف (ـ)</button>
         <button ng-click="appendToCurrentTypingCursor('.')">حرف أو أكثر (.)</button>
         <button ng-click="appendToCurrentTypingCursor('..')">   كلمة أو أكثر (..)</button>
+        <button ng-click="toggleTextAtStart('^ ')">   بداية آية (^ )</button>
+        <button ng-click="toggleTextAtEnd(' $')">   نهاية آية ( $)</button>
         <br>
         <button ng-click="appendToCurrentTypingCursor(FATHA)">فتحة</button>
         <button ng-click="appendToCurrentTypingCursor(KASRA)">كسرة</button>
         <button ng-click="appendToCurrentTypingCursor(DAMMA)">ضمة</button>
         <button ng-click="appendToCurrentTypingCursor(SHADDA)">شدة</button>
         <button ng-click="appendToCurrentTypingCursor(SUKUN)">سكون</button>
+        <br>
+        <button class="large-symbol" ng-click="appendToCurrentTypingCursor('۩')">۩</button>
+        <button class="large-symbol" ng-click="appendToCurrentTypingCursor('ۜ')">ۜ</button>
+        <button class="large-symbol" ng-click="appendToCurrentTypingCursor('ۛ')">ۛ</button>
+        <button class="large-symbol" ng-click="appendToCurrentTypingCursor('ۚ')">ۚ</button>
+        <button class="large-symbol" ng-click="appendToCurrentTypingCursor('ۙ')">ۙ</button>
+        <button class="large-symbol" ng-click="appendToCurrentTypingCursor('ۘ')">ۘ</button>
+        <button class="large-symbol" ng-click="appendToCurrentTypingCursor('ۗ')">ۗ</button>
+        <button class="large-symbol" ng-click="appendToCurrentTypingCursor('ۖ')">ۖ</button>
     </div>
 
     <button ng-click="toggleHelpVisibility()">
