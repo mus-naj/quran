@@ -9,6 +9,7 @@ const DAMMA = "\u064F"; // ُ
 const KASRA = "\u0650"; // ِ
 const SHADDA = "\u0651"; // ّ
 const SUKUN = "\u0652"; // ْ
+const ANY_SINGLE_LETTER = "ـ"; //
 
 const not_space = '[^\\s]';
 const alharakat_mufradah = FATHA + DAMMA + KASRA;
@@ -23,7 +24,7 @@ const ahrof_alela = 'اويى';
 const ahrof_hamzah = 'اأإآؤئءٰ';
 const kul_huroof = ahrof_hamzah + huroof + special_huroof;
 const huroof_wa_harakat = kul_huroof + kul_alharakat;
-
+const quran_symbols = "۩" + "ۜ" + "ۛ" + "ۚ" + "ۙ" + "ۘ" + "ۗ" + "ۖ";
 var regex_flags = 'gud';
 
 try {
@@ -76,7 +77,7 @@ function addAfterEachLetter(add_str, str) {
     return str_result;
 }
 
-function getRegexPatternForString(text) {
+function getRegexPatternForString(text, config) {
 
     text = addAfterEachLetter(optionalChars(kul_alharakat), text);
 
@@ -87,7 +88,9 @@ function getRegexPatternForString(text) {
     // use "." to match any number of chars in a word
     text = text.replace(/\./g, not_space + "*");
 
-    // use "_" to match harf wa7ed in a word
+    text = text.replace(/ا/g, "[ٰا]");
+
+    // use "_" to match single letter in a word
     text = text.replace(/[ـ_]/g, "[" + kul_huroof + "]");
 
     text = text.replace(/؟/g, "?");
@@ -104,9 +107,25 @@ function getRegexPatternForString(text) {
     text = text.replace(SHADDA + DAMMA, DAMMA + SHADDA);
 
     // remove duplicated spaces
-    text = text.replace(/\s+/g, " ");
+    text = text.replace(/\s+/g, "(?: [" + quran_symbols + "])* ");
 
-    text = new RegExp(text, regex_flags);
+    if (config.excludePartOfWords) {
+        text = " " + text.trim() + " ";
+    }
+
+    if (config.searchFromBeginning && config.searchOnEnd) {
+        text = '^ ' + text.trim() + ' $';  // trims text and adds space after ^ and before $
+    } else if (config.searchFromBeginning) {
+        text = '^ ' + text.trimStart();  // trims starting space from text and adds space after ^
+    } else if (config.searchOnEnd) {
+        text = text.trimEnd() + ' $';  // trims ending space from text and adds space before $
+    }
+
+    try {
+        text = new RegExp(text, regex_flags);
+    } catch (error) {
+        return null;
+    }
 
     return text;
 }
@@ -260,9 +279,70 @@ myApp.config(function ($routeProvider) {
             templateUrl: "view/surah.html",
             controller: "SurahCtrl"
         })
+        .when("/search-features", {
+            templateUrl: "view/search-features.html",
+            controller: "SearchHelpController"
+        })
         .otherwise({
             redirectTo: '/search'
         });
+});
+
+myApp.directive('scrollContainer', function ($timeout) {
+    return {
+        restrict: 'C', // Apply this directive to elements with the class 'scroll-container'
+        link: function (scope, element) {
+            // Adjust these values as needed
+            var threshold = 50;
+            var transitionDuration = '0.3s';
+
+            // Create a shadow element
+            var shadowElement = angular.element('<div class="scroll-shadow"></div>');
+            element.after(shadowElement);
+
+            // Create a unique identifier for each container
+            var containerId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+
+            // Create a unique hasMoreContent variable for each container
+            scope['hasMoreContent' + containerId] = false;
+
+            function checkScrollEnd() {
+                var isAtBottom = element[0].scrollHeight - element[0].scrollTop - element[0].clientHeight < threshold;
+                scope.$apply(function () {
+                    scope['hasMoreContent' + containerId] = !isAtBottom;
+                });
+            }
+
+            element.on('scroll', checkScrollEnd);
+
+            scope.$watch('hasMoreContent' + containerId, function (newVal) {
+                if (newVal) {
+                    shadowElement.addClass('has-shadow');
+                } else {
+                    shadowElement.removeClass('has-shadow');
+                }
+            });
+
+            // Add CSS transitions dynamically
+            shadowElement.css('transition', 'opacity ' + transitionDuration + ' ease');
+
+            // Watch for changes in the inner child elements
+            $timeout(checkScrollEnd); // Initial check after a short delay
+            scope.$watch(
+                function () {
+                    return element[0].innerHTML; // Watch the inner HTML content
+                },
+                function () {
+                    // Delay the check to ensure the DOM has been updated
+                    $timeout(checkScrollEnd);
+                }
+            );
+        }
+    };
+});
+
+myApp.controller('SearchHelpController', function ($scope, $http, $routeParams, $location, $anchorScroll) {
+
 });
 
 myApp.controller('SurahCtrl', function ($scope, $http, $routeParams, $location, $anchorScroll) {
@@ -292,7 +372,7 @@ myApp.controller('SurahCtrl', function ($scope, $http, $routeParams, $location, 
     });
 });
 
-myApp.controller('AyatSearchController', function ($scope, $http, $routeParams, $location, $timeout) {
+myApp.controller('AyatSearchController', function ($scope, $window, $http, $routeParams, $location, $timeout, $anchorScroll) {
     allow_pagination($scope);
     //init filters
     let urlQueryParameters = $location.search();
@@ -310,13 +390,20 @@ myApp.controller('AyatSearchController', function ($scope, $http, $routeParams, 
     }
 
     $scope.suwar = all_suwar;
-    $scope.searchStr = '';
+    $scope.searchQueryRegex = '';
 
     $scope.FATHA = FATHA
     $scope.DAMMA = DAMMA
     $scope.KASRA = KASRA
     $scope.SHADDA = SHADDA
     $scope.SUKUN = SUKUN
+    $scope.ANY_SINGLE_LETTER = ANY_SINGLE_LETTER
+
+    $scope.searchConfig = {
+        searchFromBeginning: false,
+        searchOnEnd: false,
+        excludePartOfWords: false
+    };
 
     // boolean or string, to be used in the matched strings in the sidebar
     var removeLastHarakah = $location.search()["remove_harakah"];
@@ -324,13 +411,42 @@ myApp.controller('AyatSearchController', function ($scope, $http, $routeParams, 
         // as the browser will have the string value only in case of 'false'
         removeLastHarakah = removeLastHarakah !== 'false';
     }
-    $scope.shouldRemoveLastHarakah = removeLastHarakah
+    $scope.shouldRemoveLastHarakah = removeLastHarakah;
+
+    // boolean or string, to search directly from the start of ayat
+    var searchOnlyFromBeginning = $location.search()["search_only_from_beginning"];
+    if (typeof searchOnlyFromBeginning === 'string' || searchOnlyFromBeginning instanceof String) {
+        // as the browser will have the string value only in case of 'false'
+        searchOnlyFromBeginning = searchOnlyFromBeginning !== 'false';
+    }
+    $scope.searchConfig.searchFromBeginning = searchOnlyFromBeginning;
+
+    // boolean or string, to search directly from the end of ayat
+    var searchOnlyOnEnd = $location.search()["search_only_on_end"];
+    if (typeof searchOnlyOnEnd === 'string' || searchOnlyOnEnd instanceof String) {
+        // as the browser will have the string value only in case of 'false'
+        searchOnlyOnEnd = searchOnlyOnEnd !== 'false';
+    }
+    $scope.searchConfig.searchOnEnd = searchOnlyOnEnd;
+
+    // boolean or string, to exclude searching for part of words
+    var excludePartOfWords = $location.search()["exclude_part_of_words"];
+    if (typeof excludePartOfWords === 'string' || excludePartOfWords instanceof String) {
+        // as the browser will have the string value only in case of 'false'
+        excludePartOfWords = excludePartOfWords !== 'false';
+    }
+    $scope.searchConfig.excludePartOfWords = excludePartOfWords;
 
     // Number of items to load initially
     const initialLoadCount = 200;
     $scope.visibleFoundWords = [];
     $scope.showAllWords = false;
     $scope.showOnlySelectedResults = false;
+
+    $scope.redirectTo = function (path) {
+        // Use $window.location.href to redirect to the specified path
+        $window.location.href = path;
+    };
 
     // Function to load more items as the user scrolls
     $scope.loadMoreItems = function () {
@@ -345,7 +461,7 @@ myApp.controller('AyatSearchController', function ($scope, $http, $routeParams, 
 
     var matchAyat = function (newValue) {
         var filtered_ayat = all_ayat.filter(function (item) {
-            var foundStr = item["text"].match($scope.searchStr);
+            var foundStr = item["text"].match($scope.searchQueryRegex);
             return foundStr !== null;
         });
 
@@ -356,13 +472,13 @@ myApp.controller('AyatSearchController', function ($scope, $http, $routeParams, 
             ayah["text_with_highlight"] = ayah["text"];
 
             var match = null;
-            while (match = $scope.searchStr.exec(ayah["text"])) {
+            while (match = $scope.searchQueryRegex.exec(ayah["text"])) {
                 var foundStr = match;
 
                 if ((foundStr + "").trim() == "") {
-                    if ($scope.searchStr.lastIndex == foundStr.index) {
+                    if ($scope.searchQueryRegex.lastIndex == foundStr.index) {
                         // prevent infinite loop
-                        $scope.searchStr.lastIndex += 1;
+                        $scope.searchQueryRegex.lastIndex += 1;
                     }
                     continue;
                 }
@@ -385,15 +501,18 @@ myApp.controller('AyatSearchController', function ($scope, $http, $routeParams, 
                 }));
             }
 
-            ayah["text_with_highlight"] = highlightText(ayah["text_with_highlight"], $scope.searchStr);
+            ayah["text_with_highlight"] = highlightText(ayah["text_with_highlight"], $scope.searchQueryRegex);
 
             return ayah;
         });
     };
 
-    $scope.$watch('searchStr', function (newValue) {
+    $scope.$watch('searchQueryRegex', function (newValue) {
 
         $scope.query = '';
+        if (newValue == "") {
+            return;
+        }
 
         $scope.foundAyat = matchAyat(newValue);
         $scope.foundAyat = $scope.foundAyat.filter(function (item) {
@@ -402,6 +521,8 @@ myApp.controller('AyatSearchController', function ($scope, $http, $routeParams, 
         $scope.countedAyahAttributes = countByAttributes($scope.foundAyat, ['matched', 'sura_id']);
         $scope.sortBy = "counts";
         $scope.changeCountsAsPerFilter = false;
+        $scope.isSearchDone = true;
+        $scope.scrollToMainContainer();
 
         // Watch the search results that are selected
         let filterListener = function (value) {
@@ -491,6 +612,7 @@ myApp.controller('AyatSearchController', function ($scope, $http, $routeParams, 
                     }
                 }
             }
+
             if (!selected) {
                 filterAfterSuwar = filterAfterResults;
             }
@@ -593,20 +715,51 @@ myApp.controller('AyatSearchController', function ($scope, $http, $routeParams, 
     //allow_pagination($scope);
 
     //just to test watcher
-    var initSearchStr = 'والله .ِي. .ِي.';
+    var initSearchStr = '';
     var search = ($location.search()["s"] || "");
 
     if (search != "") {
         initSearchStr = search;
     }
 
-    $scope.regex_query = initSearchStr;
+    $scope.userSearchQuery = initSearchStr;
+    $scope.isSearchDone = false;
+    $scope.hasInputError = false;
+    $scope.scrollToMainContainer = function () {
+        // set the location hash to the ID of your target element
+        $location.hash('main-container');
 
-    $scope.searchStr = getRegexPatternForString(initSearchStr);
+        // call $anchorScroll()
+        $anchorScroll();
+    };
+
+    $scope.shouldShowInputOptionsInfo = false;
+    $scope.showInputOptionInfo = function () {
+        $scope.shouldShowInputOptionsInfo = true;
+    };
+    $scope.hideInputOptionInfo = function () {
+        $scope.shouldShowInputOptionsInfo = false;
+    };
+
+    function startSearchingByEnteredText(enteredSearchStr) {
+        var regexPatternForString = getRegexPatternForString(enteredSearchStr, $scope.searchConfig);
+        if (regexPatternForString) {
+            $scope.searchQueryRegex = regexPatternForString; // This will trigger $watch expression to kick in
+        } else {
+            $scope.hasInputError = true;
+        }
+    }
+
+    if (initSearchStr != "") {
+        startSearchingByEnteredText(initSearchStr);
+    }
 
     $scope.searchButtonClicked = function () {
-        $location.search("s", $scope.regex_query);
+        $location.search("s", $scope.userSearchQuery);
         $location.search("remove_harakah", $scope.shouldRemoveLastHarakah);
+        $location.search("search_only_from_beginning", $scope.searchConfig.searchFromBeginning);
+        $location.search("search_only_on_end", $scope.searchConfig.searchOnEnd);
+        $location.search("exclude_part_of_words", $scope.searchConfig.excludePartOfWords);
         //reset filters
         $location.search("filter_results", "");
         $location.search("filter_suwar", "");
@@ -639,7 +792,7 @@ myApp.controller('AyatSearchController', function ($scope, $http, $routeParams, 
 
         // Set the new value of the input
         input.value = newValue;
-        $scope.regex_query = newValue
+        $scope.userSearchQuery = newValue
 
         // Move the cursor to the next position
         let newPosition = cursorPos + text.length
@@ -668,7 +821,7 @@ myApp.controller('AyatSearchController', function ($scope, $http, $routeParams, 
 
         // Set the new value of the input
         input.value = newValue;
-        $scope.regex_query = newValue;
+        $scope.userSearchQuery = newValue;
 
         // Set the cursor position to the original value plus the length of the added text
         input.setSelectionRange(cursorPos + text.length, cursorPos + text.length);
@@ -696,7 +849,7 @@ myApp.controller('AyatSearchController', function ($scope, $http, $routeParams, 
 
         // Set the new value of the input
         input.value = newValue;
-        $scope.regex_query = newValue;
+        $scope.userSearchQuery = newValue;
 
         // Set the cursor position to the original value
         input.setSelectionRange(cursorPos, cursorPos);
@@ -713,15 +866,16 @@ myApp.controller('AyatSearchController', function ($scope, $http, $routeParams, 
 
     $scope.$on("$locationChangeSuccess", handleLocationChange);
 
-    // I handle the location changes and make sure the view is updated.
+    // Handle the location changes and make sure the view is updated.
+    // The search begins here even when the user clicks on the search button
     function handleLocationChange(event) {
         if ($location.path() != "/search") {
             return;
         }
         let urlQueryParameters = $location.search();
         let search = (urlQueryParameters["s"] || "");
-        if (search !== $scope.regex_query) {
-            $scope.searchStr = getRegexPatternForString(search); // This will trigger $watch expression to kick in
+        if (search !== $scope.userSearchQuery) {
+            startSearchingByEnteredText(search);
         }
         let filter_results = (urlQueryParameters["filter_results"] || "");
         if (filter_results !== getTrueKeys($scope.useResults).join(",")) {

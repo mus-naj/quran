@@ -1,50 +1,95 @@
 <div ng-include="'view/header.html'"></div>
 <div class="top">
-    <div id="search-input-container">
-        <h3>ابحث:</h3>
-        <input id="search-input" name="regex_input" ng-trim="false" ng-keyup="$event.keyCode == 13 && searchButtonClicked()"
-                     type="text" class="search-input" ng-model="regex_query"/>
-        <button ng-click="searchButtonClicked()">ابحث</button>
-        <br>
-        <label><b><input type="checkbox" ng-model="shouldRemoveLastHarakah"/></b>
-            <span>إزالة الحركة الأخيرة من نتائج البحث؟</span>
-        </label>
-    </div>
-    <div id="input-options">
-        <h3>إضافة:</h3>
-        <button ng-click="appendToCurrentTypingCursor('ـ')">أي حرف (ـ)</button>
-        <button ng-click="appendToCurrentTypingCursor('.')">حرف أو أكثر (.)</button>
-        <button ng-click="appendToCurrentTypingCursor('..')">   كلمة أو أكثر (..)</button>
-        <button ng-click="toggleTextAtStart('^ ')">   بداية آية (^ )</button>
-        <button ng-click="toggleTextAtEnd(' $')">   نهاية آية ( $)</button>
-        <br>
-        <button ng-click="appendToCurrentTypingCursor(FATHA)">فتحة</button>
-        <button ng-click="appendToCurrentTypingCursor(KASRA)">كسرة</button>
-        <button ng-click="appendToCurrentTypingCursor(DAMMA)">ضمة</button>
-        <button ng-click="appendToCurrentTypingCursor(SHADDA)">شدة</button>
-        <button ng-click="appendToCurrentTypingCursor(SUKUN)">سكون</button>
-        <br>
-        <button class="large-symbol" ng-click="appendToCurrentTypingCursor('۩')">۩</button>
-        <button class="large-symbol" ng-click="appendToCurrentTypingCursor('ۜ')">ۜ</button>
-        <button class="large-symbol" ng-click="appendToCurrentTypingCursor('ۛ')">ۛ</button>
-        <button class="large-symbol" ng-click="appendToCurrentTypingCursor('ۚ')">ۚ</button>
-        <button class="large-symbol" ng-click="appendToCurrentTypingCursor('ۙ')">ۙ</button>
-        <button class="large-symbol" ng-click="appendToCurrentTypingCursor('ۘ')">ۘ</button>
-        <button class="large-symbol" ng-click="appendToCurrentTypingCursor('ۗ')">ۗ</button>
-        <button class="large-symbol" ng-click="appendToCurrentTypingCursor('ۖ')">ۖ</button>
-    </div>
+    <div id="search-container">
+        <div class="search-header">
+            <h1>أداة بحث في القرآن الكريم</h1>
+            <p class="description">أداة تمكنك من البحث عن كلمة دون تحديدها أو عبر تحديد بعض حروفها وترك الباقي دون تحديد، وكذلك بالنسبة للحركات.</p>
+            <p class="example">يمكنك البِدء عبر اختيار أحد الأمثلة للتعرف على <a href="#!/search-features">إمكانيات أداة البحث</a>.</p>
+            <div id="examples-container">
+                <button class="btn" ng-click="redirectTo('#!/search?s=أولائك%20هم%20.&filter_results=&filter_suwar=&exclude_part_of_words=false#main-container')">ما الكلمة التي تتبع (أولائك هم) في القرآن وما هي أعداد تكرارها؟</button>
+                <button class="btn" ng-click="redirectTo('#!/search?#!/search?s=.%20.&filter_results=&filter_suwar=&exclude_part_of_words&search_only_from_beginning=false&search_only_on_end&remove_harakah#main-container')">ما الكلمتين الأكثر تكراراً في نهايات الآيات؟</button>
+                <button class="btn" ng-click="redirectTo('#!/search?s=.%20.%20كانوا%20يعملون&search_only_from_beginning=false&search_only_on_end&exclude_part_of_words&filter_results=&filter_suwar=#main-container')">في نهايات الآيات ما كل كلمتين تسبقان (كانوا يعملون)؟</button>
+            </div>
+<!--            <button ng-click="toggleHelpVisibility()">-->
+<!--                {{ helpVisible ? 'إخفاء المساعدة' : 'عرض المساعدة' }}-->
+<!--            </button>-->
+<!--            <button ng-click="openPopup()">للبحث ضمن اختيارات</button>-->
+        </div>
 
-    <button ng-click="toggleHelpVisibility()">
-        {{ helpVisible ? 'إخفاء المساعدة' : 'عرض المساعدة' }}
-    </button>
+        <div class="search-input">
+            <input id="search-input" name="regex_input" ng-trim="false"
+                   ng-keyup="$event.keyCode == 13 && searchButtonClicked()"
+                   type="text" ng-model="userSearchQuery" placeholder="أدخل الكلمة المراد البحث عنها"/>
+            <button ng-click="searchButtonClicked()">ابحث</button>
+        </div>
 
-    <button ng-click="openPopup()">للبحث ضمن اختيارات</button>
+        <div class="search-notification">
+            <p class="error-message" ng-if="hasInputError">يوجد خطأ ما في نص البحث المُدخل</p>
+            <p class="success-message" ng-if="isSearchDone">
+                <button class="btn" ng-click="scrollToMainContainer()">انتقل لنتائج البحث</button>
+            </p>
+        </div>
+
+        <div class="search-options">
+            <label>
+                <input type="checkbox" ng-model="shouldRemoveLastHarakah"/>
+                <span>إزالة الحركة الأخيرة من نتائج البحث؟</span>
+            </label>
+
+            <label>
+                <input type="checkbox" ng-model="searchConfig.excludePartOfWords"/>
+                <span>استثناء البحث عن الأجزاء من الكلمات؟</span>
+            </label>
+
+            <label>
+                <input type="checkbox" ng-model="searchConfig.searchFromBeginning"/>
+                <span>البحث ابتداءً من بدايات الآيات؟</span>
+            </label>
+
+            <label>
+                <input type="checkbox" ng-model="searchConfig.searchOnEnd"/>
+                <span>البحث انتهاءً عند نهايات الآيات؟</span>
+            </label>
+        </div>
+
+        <div id="input-options" class="buttons-with-spacing">
+            <button class="btn pull-left" ng-if="!shouldShowInputOptionsInfo" ng-click="showInputOptionInfo()">إظهار طريقة البحث</button>
+            <button class="btn pull-left" ng-if="shouldShowInputOptionsInfo" ng-click="hideInputOptionInfo()">إخفاء طريقة البحث</button>
+            <h3>خيارات إضافية للبحث</h3>
+            <div ng-if="shouldShowInputOptionsInfo">
+                <p class="description">عند اختيار ما تريد البحث عنه من الخيارات أدناه ستتم إضافته للمكان المخصص لإدخال
+                    النص
+                    المبحوث عنه</p>
+                <p class="description">قبل الاختيار تأكد بأنك حددت المكان المناسب عبر وضع مؤشر الكتابة حيث تريد إدخال ما
+            ستختار البحث عنه، وفي حال عدم وضع مؤشر الكتابة في أي مكان، فسيتم وضع ما تختاره في النهاية</p>
+            </div>
+            <button ng-click="appendToCurrentTypingCursor('ـ')">أي حرف بأي حركة (ـ)</button>
+            <button ng-click="appendToCurrentTypingCursor('.')">حرف أو أكثر ضمن كلمة (.)</button>
+            <button ng-click="appendToCurrentTypingCursor(' . ')">أي كلمة ( . )</button>
+            <button ng-click="appendToCurrentTypingCursor('..')"> كلمة أو أكثر (..)</button>
+            <button ng-click="appendToCurrentTypingCursor(ANY_SINGLE_LETTER + FATHA)">أي حرف مفتوح</button>
+            <button ng-click="appendToCurrentTypingCursor(ANY_SINGLE_LETTER + KASRA)">أي حرف مكسور</button>
+            <button ng-click="appendToCurrentTypingCursor(ANY_SINGLE_LETTER + DAMMA)">أي حرف مضموم</button>
+            <button ng-click="appendToCurrentTypingCursor(SHADDA)">شدة</button>
+            <button ng-click="appendToCurrentTypingCursor(SUKUN)">سكون</button>
+            <button class="large-symbol" ng-click="appendToCurrentTypingCursor('۩')">۩</button>
+            <button class="large-symbol" ng-click="appendToCurrentTypingCursor('ۜ')">ۜ</button>
+            <button class="large-symbol" ng-click="appendToCurrentTypingCursor('ۛ')">ۛ</button>
+            <button class="large-symbol" ng-click="appendToCurrentTypingCursor('ۚ')">ۚ</button>
+            <button class="large-symbol" ng-click="appendToCurrentTypingCursor('ۙ')">ۙ</button>
+            <button class="large-symbol" ng-click="appendToCurrentTypingCursor('ۘ')">ۘ</button>
+            <button class="large-symbol" ng-click="appendToCurrentTypingCursor('ۗ')">ۗ</button>
+            <button class="large-symbol" ng-click="appendToCurrentTypingCursor('ۖ')">ۖ</button>
+        </div>
+    </div>
 
     <div id="popup" class="popup">
         <h3>تحديد خيارات البحث</h3>
-        <p class="info-text">أدخل الخيارات التي ترغب في البحث بها، مثلاً: يمكنك البحث عن الآيات التي تحتوي على "آدم" أو "عيسى".</p>
+        <p class="info-text">أدخل الخيارات التي ترغب في البحث بها، مثلاً: يمكنك البحث عن الآيات التي تحتوي على "آدم" أو
+            "عيسى".</p>
         <div class="input-container" ng-repeat="input in inputs track by $index">
-            <input type="text" ng-model="input.value" placeholder="الخيار {{$index + 1}}" id="input_{{$index}}" ng-keydown="handleEnter($event, $index, inputs.length)">
+            <input type="text" ng-model="input.value" placeholder="الخيار {{$index + 1}}" id="input_{{$index}}"
+                   ng-keydown="handleEnter($event, $index, inputs.length)">
             <span class="remove-input" ng-if="$index > 1" ng-click="removeInput($index)">حذف</span>
         </div>
         <span class="add-input" ng-click="addInput()">+ إضافة خيار</span>
@@ -58,16 +103,22 @@
 
         <div class="example">
             <strong>البحث باستخدام حرف واحد (ـ):</strong><br>
-            للبحث عن كلمات تحتوي على حرف مفتوح يتبعه مد بالألف وهمزة، استخدم الزر "<span class="highlight">أي حرف (ـ)</span>" أو اكتب (ـ) وبعدها الفتحة والحروف المطلوبة. <br>
-            مثال: "<span class="highlight">ـَاء</span>" يتناسب مع "<span class="highlight">مَاء</span>"، "<span class="highlight">سَاء</span>"، "<span class="highlight">جَاء</span>"، وأي كلمة تحتوي على حرف مفتوح يتبعه مد بالألف وهمزة مثل "أَ<span class="highlight">ضَاء</span>َتْ".
+            للبحث عن كلمات تحتوي على حرف مفتوح يتبعه مَد بالألف وهمزة، استخدم الزر "<span
+                class="highlight">أي حرف (ـ)</span>" أو اكتب (ـ) وبعدها الفتحة والحروف المطلوبة. <br>
+            مثال: "<span class="highlight">ـَاء</span>" يتناسب مع "<span class="highlight">مَاء</span>"، "<span
+                class="highlight">سَاء</span>"، "<span class="highlight">جَاء</span>"، وأي كلمة تحتوي على حرف مفتوح
+            يتبعه مَد بالألف وهمزة مثل "أَ<span class="highlight">ضَاء</span>َتْ".
             <br>
             <button class="button-link" ng-click="openNewTab('ـَاء')">اظهر كل نتائج البحث</button>
         </div>
 
         <div class="example">
             <strong>البحث باستخدام حرف أو أكثر (.):</strong><br>
-            للبحث عن كلمات تبدأ بألف ولام وحرف الحاء، استخدم الزر "<span class="highlight">حرف أو أكثر (.)</span>" أو اكتب (.) بعد كتابة الحروف. <br>
-            مثال: "<span class="highlight"> الح.</span>" يتناسب مع "<span class="highlight">الْحَقُّ</span>"، "<span class="highlight">الْحَمْدُ</span>"، وجميع الكلمات التي تبدأ بألف ولام وحرف الحاء مع مراعاة وجود مسافة لتحديد أن الحرف الأول في بداية الكلمة.
+            للبحث عن كلمات تبدأ بألف ولام وحرف الحاء، استخدم الزر "<span class="highlight">حرف أو أكثر (.)</span>" أو
+            اكتب (.) بعد كتابة الحروف. <br>
+            مثال: "<span class="highlight"> الح.</span>" يتناسب مع "<span class="highlight">الْحَقُّ</span>"، "<span
+                class="highlight">الْحَمْدُ</span>"، وجميع الكلمات التي تبدأ بألف ولام وحرف الحاء مع مراعاة وجود مسافة
+            لتحديد أن الحرف الأول في بداية الكلمة.
             <br>
             <button class="button-link" ng-click="openNewTab(' الح.')">اظهر كل نتائج البحث</button>
         </div>
@@ -88,97 +139,105 @@
 
 </div>
 
-<input id="hide-sidebar" name="h" type="checkbox">
-<label for="hide-sidebar">خيارات البحث</label>
+<div id="main-container">
+    <!--<input id="hide-sidebar" name="h" type="checkbox">-->
+    <!--<label for="hide-sidebar">خيارات البحث</label>-->
 
-<section class="left" style="border-right:1px">
-    <button ng-click="updateUrl()">تحديث الرابط</button>
+    <div id="empty-search-results" ng-if="isSearchDone && !pagedItems.length">
+        لم يتم العثور على أي آية بِحَسب <a href="#!/search-features" target="_blank">طريقة البحث</a> المُوَضَّحة
+    </div>
 
-    <div id="filter-settings">
-        <h3>الترتيب</h3>
-        <label for="sort-by-counts"><input type="radio" ng-model="sortBy" value="counts" id="sort-by-counts"> بالعدد</label>
-        <label for="sort-by-letters"><input type="radio" ng-model="sortBy" value="letters" id="sort-by-letters">الحروف </label>
-        <label for="sort-by-none"><input type="radio" ng-model="sortBy" value="none" id="sort-by-none">ترتيب العثور عليها </label>
-        <br>
-        <h3>عدد التكرار</h3>
-        <label for="update-counts-per-selections"><input type="checkbox" ng-model="changeCountsAsPerFilter" id="update-counts-per-selections">تغيير الأعداد بحسب الاختيارات؟ </label>
-        <h3>العرض</h3>
-        <label for="show-all-search-results"><input type="checkbox" ng-model="showAllWords" id="show-all-search-results">عرض كل نتائج البحث دفعة واحدة؟ </label><br>
-        <label for="show-only-selected-results"><input type="checkbox" ng-model="showOnlySelectedResults" id="show-only-selected-results">عرض فقط ما تم اختياره من نتائج البحث؟ </label>
-    </div>
-    <div class="sidebar-title">
-        <b>عدد الآيات
-            ({{ filteredAyat.length }})</b>
-    </div>
-    <div class="filter">
-                <span class="filter--title">
+    <section class="left" ng-if="isSearchDone && pagedItems.length" style="border-right:1px">
+        <!--    <button ng-click="updateUrl()">تحديث الرابط</button>-->
+
+        <!--    <div id="filter-settings">-->
+        <!--        <h3>الترتيب</h3>-->
+        <!--        <label for="sort-by-counts"><input type="radio" ng-model="sortBy" value="counts" id="sort-by-counts"> بالعدد</label>-->
+        <!--        <label for="sort-by-letters"><input type="radio" ng-model="sortBy" value="letters" id="sort-by-letters">الحروف </label>-->
+        <!--        <label for="sort-by-none"><input type="radio" ng-model="sortBy" value="none" id="sort-by-none">ترتيب العثور عليها </label>-->
+        <!--        <br>-->
+        <!--        <h3>عدد التكرار</h3>-->
+        <!--        <label for="update-counts-per-selections"><input type="checkbox" ng-model="changeCountsAsPerFilter" id="update-counts-per-selections">تغيير الأعداد بحسب الاختيارات؟ </label>-->
+        <!--        <h3>العرض</h3>-->
+        <!--        <label for="show-all-search-results"><input type="checkbox" ng-model="showAllWords" id="show-all-search-results">عرض كل نتائج البحث دفعة واحدة؟ </label><br>-->
+        <!--        <label for="show-only-selected-results"><input type="checkbox" ng-model="showOnlySelectedResults" id="show-only-selected-results">عرض فقط ما تم اختياره من نتائج البحث؟ </label>-->
+        <!--    </div>-->
+        <div class="sidebar-title">
+            <b>عدد الآيات
+                ({{ filteredAyat.length }})</b>
+        </div>
+        <div class="filter">
+            <button class="btn pull-left" ng-click="clearResultsFilter()">إزالة التحديد</button>
+            <span class="filter--title">
 نتائج البحث
-                ( {{ resultsGroup.length }} )
-                </span>
-        <span class="btn" ng-click="clearResultsFilter()">حدد الكل</span>
+            ({{ resultsGroup.length }})
+            </span>
 
-        <div class="scroll-container">
-            <div ng-repeat="results in visibleFoundWords" ng-if="!showOnlySelectedResults || useResults[results]">
-                <label><b><input type="checkbox" ng-model="useResults[results]"/>{{ :: results}}</b>
-                    <span>({{ countedAyahAttributes['matched'][results]+0 }})</span>
-                </label>
-            </div>
-            <div ng-if="isLoading">
-                <!-- Loading indicator or any other content when loading more items -->
-                <div class="loader-container">
-                    <div class="dot dot1"></div>
-                    <div class="dot dot2"></div>
-                    <div class="dot dot3"></div>
+            <div class="scroll-container" scroll-container>
+                <div ng-repeat="results in visibleFoundWords" ng-if="!showOnlySelectedResults || useResults[results]">
+                    <label><b><input type="checkbox" ng-model="useResults[results]"/>{{ :: results}}</b>
+                        <span>({{ countedAyahAttributes['matched'][results] + 0 }})</span>
+                    </label>
+                </div>
+                <div ng-if="isLoading">
+                    <!-- Loading indicator or any other content when loading more items -->
+                    <div class="loader-container">
+                        <div class="dot dot1"></div>
+                        <div class="dot dot2"></div>
+                        <div class="dot dot3"></div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div><div class="filter">
+        <div class="filter">
+            <button class="btn pull-left" ng-click="clearSuwarFilter()">إزالة التحديد</button>
             <span class="filter--title">
 السُوَر
-                ( {{ suwarGroup.length }} )
+                ({{ suwarGroup.length }})
             </span>
-    <span class="btn" ng-click="clearSuwarFilter()">حدد الكل</span>
-    <div>
-        <div ng-repeat="surah_order in suwarGroup">
-            <label><b><input type="checkbox" ng-model="useSuwar[surah_order]"/>{{ :: suwar[surah_order-1].title}}</b>
-                <span>({{ countedAyahAttributes['sura_id'][surah_order]+0 }})</span>
-            </label>
+            <div class="scroll-container" scroll-container>
+                <div ng-repeat="surah_order in suwarGroup">
+                    <label><b><input type="checkbox"
+                                     ng-model="useSuwar[surah_order]"/>{{ :: suwar[surah_order - 1].title}}</b>
+                        <span>({{ countedAyahAttributes['sura_id'][surah_order] + 0 }})</span>
+                    </label>
+                </div>
+            </div>
         </div>
-    </div>
-</div>
-</section>
-<section class="right" style="border-right:1px">
-    <div>
-        <ul id="data-list">
-            <li ng-repeat="player in pagedItems[currentPage] | filter:query">
-                <p><span ng-bind-html="player.text_with_highlight"></span>
-                    <b class="ayah-source">
-                        <a href="#!/surah?id={{ player.sura_id }}#ayah-{{ player.verse_id }}">
-                        سورة
-                        {{ suwar[player.sura_id - 1].title }}
-                        -
-                        الآية
-                        {{ player.verse_id }}
-                        </a>
-                    </b>
-                </p>
-            </li>
-        </ul>
-    </div>
+    </section>
+    <section class="right" ng-if="isSearchDone && pagedItems.length" style="border-right:1px">
+        <div>
+            <ul id="data-list">
+                <li ng-repeat="searchResultItem in pagedItems[currentPage] | filter:query">
+                    <p><span ng-bind-html="searchResultItem.text_with_highlight"></span>
+                        <b class="ayah-source">
+                            <a href="#!/surah?id={{ searchResultItem.sura_id }}#ayah-{{ searchResultItem.verse_id }}">
+                                سورة
+                                {{ suwar[searchResultItem.sura_id - 1].title }}
+                                -
+                                الآية
+                                {{ searchResultItem.verse_id }}
+                            </a>
+                        </b>
+                    </p>
+                </li>
+            </ul>
+        </div>
 
-    <div class="pagination pull-right">
-        <ul>
-            <li ng-class="{disabled: currentPage == 0}">
-                <a href ng-click="prevPage()">« Prev</a>
-            </li>
-            <li ng-repeat="n in range(pagedItems.length)"
-                ng-class="{active: n == currentPage, show: (n - 5 < currentPage) && (n + 5 > currentPage) }"
-                ng-click="setPage()">
-                <a href ng-bind="n + 1">1</a>
-            </li>
-            <li ng-class="{disabled: currentPage == pagedItems.length - 1}">
-                <a href ng-click="nextPage()">Next »</a>
-            </li>
-        </ul>
-    </div>
-</section>
+        <div class="pagination pull-right">
+            <ul>
+                <li ng-class="{disabled: currentPage == 0}">
+                    <a href ng-click="prevPage()">« السابق</a>
+                </li>
+                <li ng-repeat="n in range(pagedItems.length)"
+                    ng-class="{active: n == currentPage, show: (n - 5 < currentPage) && (n + 5 > currentPage) }"
+                    ng-click="setPage()">
+                    <a href ng-bind="n + 1">1</a>
+                </li>
+                <li ng-class="{disabled: currentPage == pagedItems.length - 1}">
+                    <a href ng-click="nextPage()">التالي »</a>
+                </li>
+            </ul>
+        </div>
+    </section>
+</div>

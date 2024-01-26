@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="quranApp">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+    <script src="js/data.js"></script>
+    <style>
+        body {
+            font-family: 'Scheherazade', 'Noto Naskh Arabic', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-wrap: wrap;
+            direction: rtl;
+        }
+
+        main {
+            flex: 1;
+            padding: 20px;
+            transition: margin-right 0.3s ease;
+        }
+
+        aside {
+            width: 250px;
+            padding: 20px;
+            box-sizing: border-box;
+            background-color: #f2f2f2;
+            transition: width 0.3s ease;
+            overflow: hidden; /* Fix for text cropping */
+            position: relative; /* Make the position relative for absolute positioning */
+        }
+
+        .sidebar-toggle {
+            font-size: 24px; /* Increase button size */
+            border: none;
+            background: none;
+            cursor: pointer;
+            outline: none;
+            position: absolute;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%); /* Center vertically */
+            transition: left 0.3s ease;
+        }
+
+        .sidebar-toggle:before {
+            content: '\2039'; /* Unicode character code for left-pointing arrow */
+        }
+
+        .collapsed .sidebar-toggle:before {
+            content: '\203A'; /* Unicode character code for right-pointing arrow */
+        }
+
+        @media (max-width: 767px) {
+            .sidebar-toggle {
+                display: inline-block; /* Display the button on small devices */
+                position: fixed;
+            }
+
+            aside.collapsed {
+                width: 0;
+                overflow: hidden;
+            }
+
+            aside.collapsed + main {
+                margin-right: 0;
+            }
+        }
+
+        .surah-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .surah-list-item {
+            margin-bottom: 10px;
+            cursor: pointer;
+            font-size: 18px; /* Increase text size */
+        }
+
+        .surah-list-item:hover {
+            color: #337ab7;
+        }
+
+        .ayat-container {
+            margin-top: 20px;
+        }
+
+        .ayat {
+            margin-bottom: 10px;
+            font-size: 20px; /* Increase ayat text size */
+        }
+
+        .search-input {
+            font-size: 18px; /* Increase search input text size */
+        }
+    </style>
+</head>
+<body ng-controller="quranCtrl">
+
+<aside ng-class="{ 'collapsed': isCollapsed }">
+    <button class="sidebar-toggle" ng-click="toggleCollapse()"></button>
+    <h2>السور القرآنية</h2>
+    <input type="text" ng-model="search" placeholder="ابحث عن سورة..." class="form-control search-input">
+    <ul class="surah-list">
+        <li class="surah-list-item" ng-repeat="surah in surahs | filter:search" ng-click="selectSurah(surah)">
+            {{ surah.title }} ({{ surah['number of ayat'] }})
+        </li>
+    </ul>
+</aside>
+
+<main>
+    <h1>السورة المحددة: {{ selectedSurah.title }} ({{ selectedSurah['number of ayat'] }})</h1>
+    <div class="ayat-container">
+        <p class="ayat" ng-repeat="ayat in selectedSurah.ayat">
+            {{ ayat.text }}
+        </p>
+    </div>
+</main>
+
+<script>
+    var app = angular.module('quranApp', []);
+
+    app.controller('quranCtrl', function($scope) {
+        $scope.isCollapsed = false;
+
+        $scope.all_suwar = all_suwar;
+        $scope.all_ayat = all_ayat;
+
+        $scope.surahs = $scope.all_suwar.map(function(surah) {
+            surah.ayat = $scope.all_ayat.filter(function(ayat) {
+                return ayat.sura_id === surah.order;
+            });
+            return surah;
+        });
+
+        // Select the first Surah by default
+        $scope.selectedSurah = $scope.surahs[0];
+
+        $scope.toggleCollapse = function() {
+            $scope.isCollapsed = !$scope.isCollapsed;
+        };
+
+        $scope.selectSurah = function(surah) {
+            $scope.selectedSurah = surah;
+        };
+    });
+</script>
+
+</body>
+</html>

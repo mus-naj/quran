@@ -1,0 +1,1 @@
+To run tests `npx karma start`

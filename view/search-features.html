@@ -1,0 +1,78 @@
+<div ng-include="'view/header.html'"></div>
+<div class="top">
+    <div id="top-container">
+        <h1>مميزات وطريقة استخدام أداة البحث</h1>
+        <p class="description">
+            تساعد أداة البحث على الحصول على الصيغ المحددة التي تتطلع للعثور عليها في القرآن الكريم.<br>
+            أداة البحث تمكنك من البحث عن جزء من كلمة مع تحديد حركات بعض الحروف، أو عن كلمة بصيغة محددة، وتمكنك من البحث
+            عن كلمات بصيغة محددة دون تحديد الحروف، بل عبر تحديد أماكن الحروف وحركاتها.
+            <br> وتُمكِّنك الأداة البحثية أيضاً من اختصار جهد بحثي في البحث عن الكلمات التي تلي أو تسبق عبارةً ما، مع
+            ذكر عدد التكرار لكل كلمة تلي العبارة مع خِيار النظر في الآيات بِحَسب الكلمة المختارة.
+        </p>
+    </div>
+</div>
+<div id="main-container">
+    <section id="search-features">
+        <div class="explanation">
+            <h2>طريقة عمل أداة البحث</h2>
+            <p>
+                تقوم الأداة بالبحث عبر المطابقة التامة لِما تم البحث عنه بالنص القرآني بِحَسب الطريقة الموجودة هنا. من
+                دون مراعاة التصريفات الأخرى للنص المبحوث عنه وسيتم اعتبار الكلمة أو العبارة المُدخلة للبحث عنها إما كلمة
+                أو جزءاً من كلمة، أو عبارة أو جزء منها.
+            </p>
+            <p>
+                لتحديد أن المبحوث عنه هو كلمة وليس جزء من كلمة أضف مسافة <span class="search-input-highlight">(
+                )</span> قبل الحرف الأول للكلمة ومسافة بعد الحرف الأخير من الكلمة.
+            </p>
+            <div class="example">
+                <p>مثال:
+                    <span>عند البحث عن <a href="#!/search?s=عمل&filter_results=&filter_suwar=#main-container"
+                                          class="search-input-highlight">عمل</a> فستعثر على كل الكلمات التي تحتوي الثلاثة أحرف متتابعة كما هي في <span
+                            class="search-input-highlight">وَعَمِلُوا</span>. ويمكنك النظر في المكان المخصص لنتائج البحث لترى جميع لتشكيلات للنص المبحوث عنه مع عدد تكرار كل ناتج بحث </span>
+                </p>
+                <p><span> للبحث عن <a
+                        href="#!/search?s=عمل&filter_results=&filter_suwar=&exclude_part_of_words#main-container"
+                        class="search-input-highlight">عمل</a> ككلمة من دون التصريفات الأخرى ومن دون إتصالها بأي حرف آخر، استخدم خِيار <span
+                        class="search-input-highlight">استثناء البحث عن الأجزاء من الكلمات؟</span></span></p>
+            </div>
+            <p>
+                للبحث بطريقة أكثر دِقَّة، حدِّد الحركات على الحروف المبحوث عنها.
+            </p>
+            <div class="example">
+                <p>مثال:
+                    <span>بدلاً من البحث عن <a href="#!/search?s=جن&filter_results=&filter_suwar=#main-container" class="search-input-highlight">جن</a> من دون تحريك، يمكنك البحث عن <a href="#!/search?s=جِن&filter_results=&filter_suwar=#main-container" class="search-input-highlight">جِن</a> لتعثر على نتائج البحث المرجوة.</span>
+                </p>
+            </div>
+        </div>
+
+        <div class="explanation">
+            <h2>المميزات الإضافية:</h2>
+            <p>
+                بالإمكان البحث عن الكلمة التي تسبق أو تتبع كلمات عبر زر <span class="search-input-highlight">أي كلمة ( . )</span>
+                الموجود تحت (خيارات إضافية للبحث)
+            </p>
+            <div class="example">
+                <p>مثال: عند البحث عن <a href="#!/search?s=أولائك%20هم%20.&filter_results=&filter_suwar=&exclude_part_of_words=false#main-container" class="search-input-highlight">(أولائك هم .)</a> ستتمكن من معرفة كل كلمة
+                    تأتي بعد (أولائك هم) في القرآن الكريم ومع عدد تكرارها.</p>
+            </div>
+            <p>
+                وبالإمكان البحث عن صيغ محددة باستخدام الأزرار: <span class="search-input-highlight">أي حرف مفتوح</span>
+                و <span class="search-input-highlight">أي حرف مكسور</span> و <span class="search-input-highlight">أي حرف مضموم</span>
+                الموجودة تحت (خيارات إضافية للبحث).
+                عند سيتم اعتبار الرمز <span class="search-input-highlight">(ـ)</span> على أنه أي حرف من دون تحديد.
+            </p>
+            <div class="example">
+                <p>مثال: للبحث عن لفظ الجلالة (الله) وتتبعه كلمتين تشبهان في ميزانهما الصرفي كلمة (فَعِيل) إبحث عن <a href="#!/search?s=والله%20ـَـِيـٌ%20ـَـِيـ&filter_results=&filter_suwar=&exclude_part_of_words=false#main-container" class="search-input-highlight">والله ـَـِيـٌ ـَـِيـ</a> وللمزيد من نتائج البحث إبحث عنها من دون الواو كما في <a href="#!/search?s=الله%20ـَـِيـٌ%20ـَـِيـ&filter_results=&filter_suwar=&exclude_part_of_words=false#main-container" class="search-input-highlight">الله ـَـِيـٌ ـَـِيـ</a>.</p>
+            </div>
+            <p>
+                للبحث عن كلمتين في آية اجعل بينهما مسافة، لتجد الكلمتين عند تتابعهما مباشرةً في القرآن الكريم. ومن الممكن استخدام زر <span class="search-input-highlight">(   كلمة أو أكثر (..))</span>
+                بين كلمتين للبحث عنهما مع وجود كلمات بينهما.
+            </p>
+            <div class="example">
+                <p>مثال: فعند البحث عن <a href="#!/search?s=إنما%20هو&filter_results=&filter_suwar=&exclude_part_of_words=false#main-container" class="search-input-highlight">(إنما هو)</a> سيتم العثور على آيتين فقط.
+                    ولكن عند البحث عن <a href="#!/search?s=إنما%20..%20هو&filter_results=&filter_suwar=&exclude_part_of_words=false#main-container" class="search-input-highlight">(إنما .. هو)</a> سيتم العثور على ٧ آيات.
+                </p>
+            </div>
+        </div>
+    </section>
+</div>

@@ -1,15 +1,23 @@
 <div ng-include="'view/header.html'"></div>
-<section class="left" style="border-right:1px">
-    <input type="text" ng-model="searchText" placeholder="إبحث...">
-    <ul id="suwar-list">
-        <li ng-repeat="surah in all_suwar | filter:searchText">
-            <a href="#!/surah?id={{surah.order}}">{{surah.order}}. {{surah.title}}</a>
-        </li>
-    </ul>
-</section>
-
-<section class="right" style="border-right:1px">
-    <h2>سورة {{ selected_surah.title }}</h2>
-    <p ng-if="selected_surah.order != 1">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p>
-    <p id="ayah-{{ ayah.verse_id }}" ng-repeat="ayah in ayat_surah">{{ ayah.text }}<span class="link" ng-click="scrollTo('ayah-'+ ayah.verse_id)">({{ ayah.verse_id }})</span></p>
-</section>
+<div class="top">
+    <div id="top-container">
+        <h1>متصفح سور القرآن</h1>
+        <input type="text" class="full-width" ng-model="searchText" placeholder="إبحث باسم السورة...">
+        <div id="suwar-list-container" class="scroll-container">
+            <ul id="suwar-list">
+                <li ng-repeat="surah in all_suwar | filter:searchText">
+                    <a ng-href="#!/surah?id={{surah.order}}#surah" class="surah-link">
+                        {{surah.order}}. {{surah.title}}
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div id="main-container">
+    <section id="surah" ng-if="selected_surah" style="border-right:1px">
+        <h2>سورة {{ selected_surah.title }}</h2>
+        <p ng-if="selected_surah.order != 1">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p>
+        <p id="ayah-{{ ayah.verse_id }}" class="ayah" ng-repeat="ayah in ayat_surah">{{ ayah.text }}<span class="link" ng-click="scrollTo('ayah-'+ ayah.verse_id)">({{ ayah.verse_id }})</span></p>
+    </section>
+</div>
