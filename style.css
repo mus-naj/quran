@@ -616,6 +616,12 @@ div#input-options, #examples-container {
     vertical-align: bottom;
 }
 
+div#examples-container .btn {
+    float: right;
+    clear: both;
+    margin-bottom: 0.3em;
+}
+
 h3 {
     margin: 0.35em 0;
 }

@@ -7,8 +7,10 @@
             <p class="example">يمكنك البِدء عبر اختيار أحد الأمثلة للتعرف على <a href="#!/search-features">إمكانيات أداة البحث</a>.</p>
             <div id="examples-container">
                 <button class="btn" ng-click="redirectTo('#!/search?s=أولائك%20هم%20.&filter_results=&filter_suwar=&exclude_part_of_words=false#main-container')">ما الكلمة التي تتبع (أولائك هم) في القرآن وما هي أعداد تكرارها؟</button>
-                <button class="btn" ng-click="redirectTo('#!/search?#!/search?s=.%20.&filter_results=&filter_suwar=&exclude_part_of_words&search_only_from_beginning=false&search_only_on_end&remove_harakah#main-container')">ما الكلمتين الأكثر تكراراً في نهايات الآيات؟</button>
+                <button class="btn" ng-click="redirectTo('#!/search?s=.%20.&search_only_on_end&exclude_part_of_words&filter_results=&filter_suwar=#main-container')">ما الكلمتين الأكثر تكراراً في نهايات الآيات؟</button>
                 <button class="btn" ng-click="redirectTo('#!/search?s=.%20.%20كانوا%20يعملون&search_only_from_beginning=false&search_only_on_end&exclude_part_of_words&filter_results=&filter_suwar=#main-container')">في نهايات الآيات ما كل كلمتين تسبقان (كانوا يعملون)؟</button>
+                <button class="btn" ng-click="redirectTo('#!/search?s=.ر.ح.م.&search_only_on_end=false&exclude_part_of_words&filter_results=&filter_suwar=#main-container')">ما الكلمات التي جذرها هو رَحِمَ وغيرها من الكلمات التي تحتوي على الحروف الجذر بنفس الترتيب؟</button>
+                <button class="btn" ng-click="redirectTo('#!/search?s=يَـْـَـ&search_only_on_end=false&exclude_part_of_words&filter_results=&filter_suwar=#main-container')">ما الكلمات التي تشبه وزن يَفْعَل في القرآن؟</button>
             </div>
 <!--            <button ng-click="toggleHelpVisibility()">-->
 <!--                {{ helpVisible ? 'إخفاء المساعدة' : 'عرض المساعدة' }}-->
