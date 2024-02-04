@@ -254,8 +254,7 @@ button {
     background: #f0f0f0;
     padding: 1em;
     border-radius: 8px;
-    width: calc(50% - 20px);
-    min-width: 240px;
+    width: calc(100% - 20px);
     float: right;
     box-sizing: border-box;
 }
@@ -312,6 +311,7 @@ nav#main-menu ul li a:visited {
 
 nav#main-menu {
     width: 800px;
+    max-width: 100%;
     display: block;
     margin: auto;
     text-align: center;
@@ -620,6 +620,9 @@ h3 {
         position: relative;
     }
 
+    .filter {
+        width: calc(50% - 20px);
+    }
 }
 
 @media screen and (max-width: 400px) {
@@ -633,6 +636,10 @@ h3 {
         box-sizing: border-box;
     }
 
+    .filter {
+        width: calc(100% - 20px);
+        margin: 10px;
+    }
 }
 
 .loader-container {
