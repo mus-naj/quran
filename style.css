@@ -228,15 +228,27 @@ button {
 }
 
 .search-input {
-    display: flex;
+    display: block;
+    width: 100%;
     margin-bottom: 15px;
 }
 
+.search-input button {
+    float: left;
+}
+
+.fix-height::after {
+    content: " ";
+    display: inline-block;
+}
+
 #search-input {
-    flex: 1;
+    display: inline-block;
     padding: 8px;
     border: 1px solid #ddd;
     border-radius: 4px;
+    box-sizing: border-box;
+    width: 100%;
 }
 
 .search-options label {
@@ -272,10 +284,12 @@ input[type=text]::placeholder {
 
 /* show kasrah */
 input[type=text]#search-input {
-    height: 1.3em;
+    height: 2em;
     text-indent: 0.5em;
     letter-spacing: 0.1em !important;
     font-size: 1.3em;
+    width: calc(100% - 80px);
+    float: right;
 }
 
 nav#main-menu ul li {
@@ -631,14 +645,17 @@ h3 {
         height: 2em;
     }
 
-    .search-input, .search-input + button {
+    .search-input, #search-input + button {
         width: 100%;
-        box-sizing: border-box;
     }
 
     .filter {
         width: calc(100% - 20px);
         margin: 10px;
+    }
+
+    input[type=text]#search-input {
+        width: 100%;
     }
 }
 
