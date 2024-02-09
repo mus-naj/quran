@@ -16,6 +16,7 @@ header {
 
 h1 {
     margin: 0.2em 0;
+    font-size: 1.6em;
 }
 
 button, input {
@@ -234,12 +235,14 @@ button {
 }
 
 .search-input button {
-    float: left;
+    display: inline-block;
+    width: 80px;
 }
 
 .fix-height::after {
     content: " ";
     display: inline-block;
+    float: right;
 }
 
 #search-input {
@@ -662,6 +665,7 @@ h3 {
 
     input[type=text]#search-input {
         width: 100%;
+        margin-bottom: 0.3em;
     }
 }
 
