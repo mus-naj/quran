@@ -121,6 +121,10 @@ function getRegexPatternForString(text, config) {
         text = text.trimEnd() + ' $';  // trims ending space from text and adds space before $
     }
 
+    // ignore the first and the last spaces to allow matching the direct next word
+    text = text.replace(/^ /, "(?<= )");
+    text = text.replace(/ $/, "(?= )");
+
     try {
         text = new RegExp(text, regex_flags);
     } catch (error) {
