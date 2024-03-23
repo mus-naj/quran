@@ -4,18 +4,57 @@
         <div class="search-header">
             <h1>أداة بحث في القرآن الكريم</h1>
             <p class="description">أداة تمكنك من البحث عن كلمة دون تحديدها أو عبر تحديد بعض حروفها وترك الباقي دون تحديد، وكذلك بالنسبة للحركات.</p>
-            <p class="example">يمكنك البِدء عبر اختيار أحد الأمثلة للتعرف على <a href="#!/search-features">إمكانيات أداة البحث</a>.</p>
-            <div id="examples-container">
-                <button class="btn" ng-click="redirectTo('#!/search?s=أولائك%20هم%20.&filter_results=&filter_suwar=&exclude_part_of_words=false#main-container')">ما الكلمة التي تتبع (أولائك هم) في القرآن وما هي أعداد تكرارها؟</button>
-                <button class="btn" ng-click="redirectTo('#!/search?s=.%20.&search_only_on_end&exclude_part_of_words&filter_results=&filter_suwar=#main-container')">ما الكلمتين الأكثر تكراراً في نهايات الآيات؟</button>
-                <button class="btn" ng-click="redirectTo('#!/search?s=.%20.%20كانوا%20يعملون&search_only_from_beginning=false&search_only_on_end&exclude_part_of_words&filter_results=&filter_suwar=#main-container')">في نهايات الآيات ما كل كلمتين تسبقان (كانوا يعملون)؟</button>
-                <button class="btn" ng-click="redirectTo('#!/search?s=.ر.ح.م.&search_only_on_end=false&exclude_part_of_words&filter_results=&filter_suwar=#main-container')">ما الكلمات التي جذرها هو رَحِمَ وغيرها من الكلمات التي تحتوي على الحروف الجذر بنفس الترتيب؟</button>
-                <button class="btn" ng-click="redirectTo('#!/search?s=يَـْـَـ&search_only_on_end=false&exclude_part_of_words&filter_results=&filter_suwar=#main-container')">ما الكلمات التي تشبه وزن يَفْعَل في القرآن؟</button>
-            </div>
-<!--            <button ng-click="toggleHelpVisibility()">-->
-<!--                {{ helpVisible ? 'إخفاء المساعدة' : 'عرض المساعدة' }}-->
-<!--            </button>-->
+            <button ng-click="toggleHelpVisibility()">
+                {{ helpVisible ? 'إخفاء المساعدة' : 'عرض المساعدة' }}
+            </button>
 <!--            <button ng-click="openPopup()">للبحث ضمن اختيارات</button>-->
+
+            <div ng-show="helpVisible" class="help-section">
+                <h2>كيفية استخدام خانة البحث</h2>
+
+                <div class="example">
+                    <strong>البحث باستخدام حرف واحد (ـ):</strong><br>
+                    للبحث عن كلمات تحتوي على حرف مفتوح يتبعه مَد بالألف وهمزة، استخدم الزر "<span
+                        class="highlight">أي حرف (ـ)</span>" أو اكتب (ـ) وبعدها الفتحة والحروف المطلوبة. <br>
+                    مثال: "<span class="highlight">ـَاء</span>" يتناسب مع "<span class="highlight">مَاء</span>"، "<span
+                        class="highlight">سَاء</span>"، "<span class="highlight">جَاء</span>"، وأي كلمة تحتوي على حرف مفتوح
+                    يتبعه مَد بالألف وهمزة مثل "أَ<span class="highlight">ضَاء</span>َتْ".
+                    <br>
+                    <button class="button-link" ng-click="openNewTab('ـَاء')">اظهر كل نتائج البحث</button>
+                </div>
+
+                <div class="example">
+                    <strong>البحث باستخدام حرف أو أكثر (.):</strong><br>
+                    للبحث عن كلمات تبدأ بألف ولام وحرف الحاء، استخدم الزر "<span class="highlight">حرف أو أكثر (.)</span>" أو
+                    اكتب (.) بعد كتابة الحروف. <br>
+                    مثال: "<span class="highlight"> الح.</span>" يتناسب مع "<span class="highlight">الْحَقُّ</span>"، "<span
+                        class="highlight">الْحَمْدُ</span>"، وجميع الكلمات التي تبدأ بألف ولام وحرف الحاء مع مراعاة وجود مسافة
+                    لتحديد أن الحرف الأول في بداية الكلمة.
+                    <br>
+                    <button class="button-link" ng-click="openNewTab(' الح.')">اظهر كل نتائج البحث</button>
+                </div>
+
+                <div class="example">
+                    <strong>البحث عن كلمة أو أكثر (..):</strong><br>
+                    للبحث عن مجموعة من الكلمات، استخدم الزر "<span class="highlight">كلمة أو أكثر (..)</span>". <br>
+                    مثال: "<span class="highlight">إذا .. قالوا</span>" يتناسب مع: <br>
+                    <ul>
+                        <li><span class="highlight">"إِذَا لَقُوا الَّذِينَ آمَنُوا قَالُوا"</span></li>
+                        <li><span class="highlight">"إِذَا قِيلَ لَهُمُ اتَّبِعُوا مَا أَنْزَلَ اللَّهُ قَالُوا"</span></li>
+                    </ul>
+                    <button class="button-link" ng-click="openNewTab('إذا .. قالوا')">اظهر كل نتائج البحث</button>
+                </div>
+
+                <p class="example">يمكنك البِدء عبر اختيار أحد الأمثلة للتعرف على <a href="#!/search-features">إمكانيات أداة البحث</a>.</p>
+                <div id="examples-container">
+                    <button class="btn" ng-click="redirectTo('#!/search?s=أولائك%20هم%20.&filter_results=&filter_suwar=&exclude_part_of_words=false#main-container')">ما الكلمة التي تتبع (أولائك هم) في القرآن وما هي أعداد تكرارها؟</button>
+                    <button class="btn" ng-click="redirectTo('#!/search?s=.%20.&search_only_on_end&exclude_part_of_words&filter_results=&filter_suwar=#main-container')">ما الكلمتين الأكثر تكراراً في نهايات الآيات؟</button>
+                    <button class="btn" ng-click="redirectTo('#!/search?s=.%20.%20كانوا%20يعملون&search_only_from_beginning=false&search_only_on_end&exclude_part_of_words&filter_results=&filter_suwar=#main-container')">في نهايات الآيات ما كل كلمتين تسبقان (كانوا يعملون)؟</button>
+                    <button class="btn" ng-click="redirectTo('#!/search?s=.ر.ح.م.&search_only_on_end=false&exclude_part_of_words&filter_results=&filter_suwar=#main-container')">ما الكلمات التي جذرها هو رَحِمَ وغيرها من الكلمات التي تحتوي على الحروف الجذر بنفس الترتيب؟</button>
+                    <button class="btn" ng-click="redirectTo('#!/search?s=يَـْـَـ&search_only_on_end=false&exclude_part_of_words&filter_results=&filter_suwar=#main-container')">ما الكلمات التي تشبه وزن يَفْعَل في القرآن؟</button>
+                </div>
+            </div>
+
         </div>
 
         <div class="search-input fix-height">
@@ -98,43 +137,6 @@
         <br>
         <button class="confirm-btn" ng-click="done()">أضف لنص البحث</button>
         <button class="close-btn" ng-click="closePopup()">إغلاق</button>
-    </div>
-
-    <div ng-show="helpVisible" class="help-section">
-        <h2>كيفية استخدام خانة البحث</h2>
-
-        <div class="example">
-            <strong>البحث باستخدام حرف واحد (ـ):</strong><br>
-            للبحث عن كلمات تحتوي على حرف مفتوح يتبعه مَد بالألف وهمزة، استخدم الزر "<span
-                class="highlight">أي حرف (ـ)</span>" أو اكتب (ـ) وبعدها الفتحة والحروف المطلوبة. <br>
-            مثال: "<span class="highlight">ـَاء</span>" يتناسب مع "<span class="highlight">مَاء</span>"، "<span
-                class="highlight">سَاء</span>"، "<span class="highlight">جَاء</span>"، وأي كلمة تحتوي على حرف مفتوح
-            يتبعه مَد بالألف وهمزة مثل "أَ<span class="highlight">ضَاء</span>َتْ".
-            <br>
-            <button class="button-link" ng-click="openNewTab('ـَاء')">اظهر كل نتائج البحث</button>
-        </div>
-
-        <div class="example">
-            <strong>البحث باستخدام حرف أو أكثر (.):</strong><br>
-            للبحث عن كلمات تبدأ بألف ولام وحرف الحاء، استخدم الزر "<span class="highlight">حرف أو أكثر (.)</span>" أو
-            اكتب (.) بعد كتابة الحروف. <br>
-            مثال: "<span class="highlight"> الح.</span>" يتناسب مع "<span class="highlight">الْحَقُّ</span>"، "<span
-                class="highlight">الْحَمْدُ</span>"، وجميع الكلمات التي تبدأ بألف ولام وحرف الحاء مع مراعاة وجود مسافة
-            لتحديد أن الحرف الأول في بداية الكلمة.
-            <br>
-            <button class="button-link" ng-click="openNewTab(' الح.')">اظهر كل نتائج البحث</button>
-        </div>
-
-        <div class="example">
-            <strong>البحث عن كلمة أو أكثر (..):</strong><br>
-            للبحث عن مجموعة من الكلمات، استخدم الزر "<span class="highlight">كلمة أو أكثر (..)</span>". <br>
-            مثال: "<span class="highlight">إذا .. قالوا</span>" يتناسب مع: <br>
-            <ul>
-                <li><span class="highlight">"إِذَا لَقُوا الَّذِينَ آمَنُوا قَالُوا"</span></li>
-                <li><span class="highlight">"إِذَا قِيلَ لَهُمُ اتَّبِعُوا مَا أَنْزَلَ اللَّهُ قَالُوا"</span></li>
-            </ul>
-            <button class="button-link" ng-click="openNewTab('إذا .. قالوا')">اظهر كل نتائج البحث</button>
-        </div>
     </div>
     <!--<br>-->
     <!--ضمن النتائج: <input name="company" type="text" class="search-input" ng-model="query"/>-->
