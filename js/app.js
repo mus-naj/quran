@@ -11,7 +11,8 @@ const SHADDA = "\u0651"; // ّ
 const SUKUN = "\u0652"; // ْ
 const ANY_SINGLE_LETTER = "ـ"; //
 
-const not_space = '[^\\s]';
+const quran_symbols = "۩" + "ۜ" + "ۛ" + "ۚ" + "ۙ" + "ۘ" + "ۗ" + "ۖ";
+const any_word_letter = '[^\\s' + quran_symbols + ']';
 const alharakat_mufradah = FATHA + DAMMA + KASRA;
 const alharakat_tanween = FATHATAN + DAMMATAN + KASRATAN;
 const numbers = '1234567890';
@@ -24,7 +25,6 @@ const ahrof_alela = 'اويى';
 const ahrof_hamzah = 'اأإآؤئءٰ';
 const kul_huroof = ahrof_hamzah + huroof + special_huroof;
 const huroof_wa_harakat = kul_huroof + kul_alharakat;
-const quran_symbols = "۩" + "ۜ" + "ۛ" + "ۚ" + "ۙ" + "ۘ" + "ۗ" + "ۖ";
 var regex_flags = 'gud';
 
 try {
@@ -68,9 +68,10 @@ function addAfterEachLetter(add_str, str) {
     const count_chars = chars_arr.length;
     for (var i = 0; i < count_chars; i++) {
         const current_char = chars_arr[i];
-        str_result += current_char;
         if (!ignored_chars.includes(current_char)) {
-            str_result += add_str;
+            str_result += "(?:" + current_char + add_str + ")";
+        } else {
+            str_result += current_char;
         }
     }
 
@@ -79,19 +80,25 @@ function addAfterEachLetter(add_str, str) {
 
 function getRegexPatternForString(text, config) {
 
-    text = addAfterEachLetter(optionalChars(kul_alharakat), text);
+    text = text.replace(/\*/,"**");
+
+    let optional_kul_alharakat = optionalChars(kul_alharakat);
+    text = addAfterEachLetter(optional_kul_alharakat, text);
 
     // use ".." to match any number of words
     text = text.replace(/\s\.\.\s/g, "(?:\\s\.)*?\\s");
     //text = text.replace(/\s\.\.\s/g,"(?:\\s[^"++"])*\\s");
 
-    // use "." to match any number of chars in a word
-    text = text.replace(/\./g, not_space + "*");
+    // use "." to match one or more chars in a word
+    text = text.replace(/\./g, "_+");
+
+    // use "**+" to match any number of chars in a word
+    text = text.replace(/\*{2,}/g, "_*");
 
     text = text.replace(/ا/g, "[ٰا]");
 
     // use "_" to match single letter in a word
-    text = text.replace(/[ـ_]/g, "[" + kul_huroof + "]");
+    text = text.replace(/[ـ_]/g, "(?:" + "[" + kul_huroof + "]" + optional_kul_alharakat + ")");
 
     text = text.replace(/؟/g, "?");
 
@@ -106,7 +113,7 @@ function getRegexPatternForString(text, config) {
     text = text.replace(SHADDA + KASRA, KASRA + SHADDA);
     text = text.replace(SHADDA + DAMMA, DAMMA + SHADDA);
 
-    // remove duplicated spaces
+    // remove duplicated spaces and allow matching quran_symbols
     text = text.replace(/\s+/g, "(?: [" + quran_symbols + "])* ");
 
     if (config.excludePartOfWords) {
