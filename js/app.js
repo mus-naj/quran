@@ -85,8 +85,12 @@ function getRegexPatternForString(text, config) {
     let optional_kul_alharakat = optionalChars(kul_alharakat);
     text = addAfterEachLetter(optional_kul_alharakat, text);
 
+    if (config.excludePartOfWords) {
+        text = " " + text.trim() + " ";
+    }
+
     // use ".." to match any number of words
-    text = text.replace(/\s\.\.\s/g, "(?:\\s\.)*?\\s");
+    text = text.replace(/(^|\s)\.\.(\s|$)/g, " .(?: .)*? ");
     //text = text.replace(/\s\.\.\s/g,"(?:\\s[^"++"])*\\s");
 
     // use "." to match one or more chars in a word
@@ -114,11 +118,7 @@ function getRegexPatternForString(text, config) {
     text = text.replace(SHADDA + DAMMA, DAMMA + SHADDA);
 
     // remove duplicated spaces and allow matching quran_symbols
-    text = text.replace(/\s+/g, "(?: [" + quran_symbols + "])* ");
-
-    if (config.excludePartOfWords) {
-        text = " " + text.trim() + " ";
-    }
+    text = text.replace(/(?!^)\s+/g, "(?: [" + quran_symbols + "])* ");
 
     if (config.searchFromBeginning && config.searchOnEnd) {
         text = '^ ' + text.trim() + ' $';  // trims text and adds space after ^ and before $
