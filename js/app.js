@@ -24,6 +24,7 @@ const special_huroof = 'ةى';
 const ahrof_alela = 'اويى';
 const ahrof_hamzah = 'اأإآؤئءٰ';
 const kul_huroof = ahrof_hamzah + huroof + special_huroof;
+const kul_huroof_pattern = "[ا-يآؤئإأٱءٰ]";
 const huroof_wa_harakat = kul_huroof + kul_alharakat;
 var regex_flags = 'gud';
 
@@ -98,7 +99,7 @@ function getRegexPatternForString(text, config) {
     text = text.replace(/ا/g, "[ٰا]");
 
     // use "_" to match single letter in a word
-    text = text.replace(/[ـ_]/g, "(?:" + "[" + kul_huroof + "]" + optional_kul_alharakat + ")");
+    text = text.replace(/[ـ_]/g, "(?:" + kul_huroof_pattern + optional_kul_alharakat + ")");
 
     text = text.replace(/؟/g, "?");
 
@@ -563,176 +564,175 @@ myApp.controller('AyatSearchController', function ($scope, $window, $http, $rout
         $scope.isSearchDone = true;
         $scope.scrollToMainContainer();
 
-        // Watch the search results that are selected
-        let filterListener = function (value) {
-            var selected;
+        // Utility functions
+        $scope.searchRegex = function (item) {
+            return item.match(new RegExp($scope.regexStrToSearch, "u"));
+        };
+    });
 
-            $scope.count = function (prop, value) {
-                return function (el) {
-                    return el[prop] == value;
-                };
+    // Watch the search results that are selected
+    let filterListener = function (value) {
+        var selected;
+
+        $scope.count = function (prop, value) {
+            return function (el) {
+                return el[prop] == value;
             };
+        };
 
-            $scope.resultsGroup = uniqueItems($scope.foundAyat, 'matched');
-            // Sort the array in ascending order
-            $scope.sortResultsGroup = function () {
-                if ($scope.sortBy == "letters") {
-                    $scope.resultsGroup = $scope.resultsGroup.sort((a, b) => a.localeCompare(b));
-                } else if ($scope.sortBy == "counts") {
-                    $scope.resultsGroup = $scope.resultsGroup.sort(function (a, b) {
-                        var firstCounts = $scope.countedAyahAttributes['matched'][a] + 0;
-                        firstCounts = isNaN(firstCounts) ? 0 : firstCounts;
-                        var secondCounts = $scope.countedAyahAttributes['matched'][b] + 0;
-                        secondCounts = isNaN(secondCounts) ? 0 : secondCounts;
-                        return secondCounts - firstCounts;
-                    });
-                }
-            };
-
-            var uniqueAyat = new Set();
-            var filterAfterResults = [];
-            selected = false;
-            for (var j in $scope.foundAyat) {
-                var p = $scope.foundAyat[j];
-                for (var i in $scope.useResults) {
-                    if ($scope.useResults[i]) {
-                        selected = true;
-                        var matches = valueShouldBeArray(p.matched);
-
-                        for (var k = 0; k < matches.length; k++) {
-                            if (i == matches[k]) {
-                                uniqueAyat.add(p);
-                                break;
-                            }
-                        }
-
-                    }
-                }
+        $scope.resultsGroup = uniqueItems($scope.foundAyat, 'matched');
+        // Sort the array in ascending order
+        $scope.sortResultsGroup = function () {
+            if ($scope.sortBy == "letters") {
+                $scope.resultsGroup = $scope.resultsGroup.sort((a, b) => a.localeCompare(b));
+            } else if ($scope.sortBy == "counts") {
+                $scope.resultsGroup = $scope.resultsGroup.sort(function (a, b) {
+                    var firstCounts = $scope.countedAyahAttributes['matched'][a] + 0;
+                    firstCounts = isNaN(firstCounts) ? 0 : firstCounts;
+                    var secondCounts = $scope.countedAyahAttributes['matched'][b] + 0;
+                    secondCounts = isNaN(secondCounts) ? 0 : secondCounts;
+                    return secondCounts - firstCounts;
+                });
             }
-            filterAfterResults = Array.from(uniqueAyat);
-            if (!selected) {
-                filterAfterResults = $scope.foundAyat;
-            }
+        };
 
-            if (filterAfterResults.length == 0 && $scope.foundAyat.length > 0) {
-                $location.search("filter_results", "");
-            }
+        var uniqueAyat = new Set();
+        var filterAfterResults = [];
+        selected = false;
+        for (var j in $scope.foundAyat) {
+            var p = $scope.foundAyat[j];
+            for (var i in $scope.useResults) {
+                if ($scope.useResults[i]) {
+                    selected = true;
+                    var matches = valueShouldBeArray(p.matched);
 
-            $scope.suwarGroup = uniqueItems($scope.foundAyat, 'sura_id');
-            $scope.sortSuwarGroup = function () {
-                if ($scope.sortBy == "letters") {
-                    $scope.suwarGroup = $scope.suwarGroup.sort(function (a, b) {
-                        var firstSurah = $scope.suwar[a - 1].title;
-                        var secondSurah = $scope.suwar[b - 1].title;
-                        return firstSurah.localeCompare(secondSurah);
-                    });
-                } else if ($scope.sortBy == "counts") {
-                    $scope.suwarGroup = $scope.suwarGroup.sort(function (a, b) {
-                        var firstCounts = $scope.countedAyahAttributes['sura_id'][a] + 0;
-                        firstCounts = isNaN(firstCounts) ? 0 : firstCounts;
-                        var secondCounts = $scope.countedAyahAttributes['sura_id'][b] + 0;
-                        secondCounts = isNaN(secondCounts) ? 0 : secondCounts;
-                        return secondCounts - firstCounts;
-                    });
-                }
-            };
-
-            var filterAfterSuwar = [];
-            selected = false;
-            for (var j in filterAfterResults) {
-                var p = filterAfterResults[j];
-                for (var i in $scope.useSuwar) {
-                    if ($scope.useSuwar[i]) {
-                        selected = true;
-                        if (i == p.sura_id) {
-                            filterAfterSuwar.push(p);
+                    for (var k = 0; k < matches.length; k++) {
+                        if (i == matches[k]) {
+                            uniqueAyat.add(p);
                             break;
                         }
                     }
+
                 }
             }
+        }
+        filterAfterResults = Array.from(uniqueAyat);
+        if (!selected) {
+            filterAfterResults = $scope.foundAyat;
+        }
 
-            if (!selected) {
-                filterAfterSuwar = filterAfterResults;
+        if (filterAfterResults.length == 0 && $scope.foundAyat.length > 0) {
+            $location.search("filter_results", "");
+        }
+
+        $scope.suwarGroup = uniqueItems($scope.foundAyat, 'sura_id');
+        $scope.sortSuwarGroup = function () {
+            if ($scope.sortBy == "letters") {
+                $scope.suwarGroup = $scope.suwarGroup.sort(function (a, b) {
+                    var firstSurah = $scope.suwar[a - 1].title;
+                    var secondSurah = $scope.suwar[b - 1].title;
+                    return firstSurah.localeCompare(secondSurah);
+                });
+            } else if ($scope.sortBy == "counts") {
+                $scope.suwarGroup = $scope.suwarGroup.sort(function (a, b) {
+                    var firstCounts = $scope.countedAyahAttributes['sura_id'][a] + 0;
+                    firstCounts = isNaN(firstCounts) ? 0 : firstCounts;
+                    var secondCounts = $scope.countedAyahAttributes['sura_id'][b] + 0;
+                    secondCounts = isNaN(secondCounts) ? 0 : secondCounts;
+                    return secondCounts - firstCounts;
+                });
             }
-
-            if (filterAfterSuwar.length == 0 && $scope.foundAyat.length > 0) {
-                $location.search("filter_suwar", "");
-            }
-
-            $scope.filteredAyat = filterAfterSuwar;
-
-            if ($scope.changeCountsAsPerFilter) {
-                $scope.countedAyahAttributes = countByAttributes($scope.filteredAyat, ['matched', 'sura_id']);
-            } else {
-                $scope.countedAyahAttributes = countByAttributes($scope.foundAyat, ['matched', 'sura_id']);
-            }
-
-            $scope.sortResultsGroup();
-            $scope.sortSuwarGroup();
-
-            // reset pagination
-            $scope.currentPage = 0;
-
-            // now group by pages
-            $scope.groupToPages();
-
         };
 
-        $scope.$watch(function () {
-            return {
-                //foundAyat: $scope.foundAyat,
-                useResults: $scope.useResults,
-                useSuwar: $scope.useSuwar,
-            }
-        }, function () {
-            filterListener();
-            let resetPositions = $scope.changeCountsAsPerFilter && $scope.sortBy === "counts";
-            if ($scope.visibleFoundWords.length === 0 || resetPositions) {
-                if ($scope.showAllWords) {
-                    $scope.visibleFoundWords = $scope.resultsGroup;
-                } else {
-                    $scope.visibleFoundWords = $scope.resultsGroup.slice(0, initialLoadCount);
+        var filterAfterSuwar = [];
+        selected = false;
+        for (var j in filterAfterResults) {
+            var p = filterAfterResults[j];
+            for (var i in $scope.useSuwar) {
+                if ($scope.useSuwar[i]) {
+                    selected = true;
+                    if (i == p.sura_id) {
+                        filterAfterSuwar.push(p);
+                        break;
+                    }
                 }
             }
-            // First fix the bug of having the useResults updated and causing the scroll position to reset to top, then uncomment this:
-            // let filterResultsKeys = getTrueKeys($scope.useResults).join(",");
-            // if ($location.search()["filter_results"] !== filterResultsKeys) {
-            //     $location.search( "filter_results", filterResultsKeys);
-            // }
-            // let filterSuwarKeys = getTrueKeys($scope.useSuwar).join(",");
-            // if ($location.search()["filter_suwar"] !== filterSuwarKeys) {
-            //     $location.search( "filter_suwar", filterSuwarKeys);
-            // }
-        }, true);
+        }
 
-        $scope.$watch(function () {
-            return {
-                updateCounts: $scope.changeCountsAsPerFilter,
-                sortBy: $scope.sortBy
-            }
-        }, function () {
-            filterListener();
+        if (!selected) {
+            filterAfterSuwar = filterAfterResults;
+        }
+
+        if (filterAfterSuwar.length == 0 && $scope.foundAyat.length > 0) {
+            $location.search("filter_suwar", "");
+        }
+
+        $scope.filteredAyat = filterAfterSuwar;
+
+        if ($scope.changeCountsAsPerFilter) {
+            $scope.countedAyahAttributes = countByAttributes($scope.filteredAyat, ['matched', 'sura_id']);
+        } else {
+            $scope.countedAyahAttributes = countByAttributes($scope.foundAyat, ['matched', 'sura_id']);
+        }
+
+        $scope.sortResultsGroup();
+        $scope.sortSuwarGroup();
+
+        // reset pagination
+        $scope.currentPage = 0;
+
+        // now group by pages
+        $scope.groupToPages();
+
+    };
+
+    $scope.$watch(function () {
+        return {
+            //foundAyat: $scope.foundAyat,
+            useResults: $scope.useResults,
+            useSuwar: $scope.useSuwar,
+        }
+    }, function () {
+        filterListener();
+        let resetPositions = $scope.changeCountsAsPerFilter && $scope.sortBy === "counts";
+        if ($scope.visibleFoundWords.length === 0 || resetPositions) {
             if ($scope.showAllWords) {
                 $scope.visibleFoundWords = $scope.resultsGroup;
             } else {
                 $scope.visibleFoundWords = $scope.resultsGroup.slice(0, initialLoadCount);
             }
-        }, true);
+        }
+        // First fix the bug of having the useResults updated and causing the scroll position to reset to top, then uncomment this:
+        // let filterResultsKeys = getTrueKeys($scope.useResults).join(",");
+        // if ($location.search()["filter_results"] !== filterResultsKeys) {
+        //     $location.search( "filter_results", filterResultsKeys);
+        // }
+        // let filterSuwarKeys = getTrueKeys($scope.useSuwar).join(",");
+        // if ($location.search()["filter_suwar"] !== filterSuwarKeys) {
+        //     $location.search( "filter_suwar", filterSuwarKeys);
+        // }
+    }, true);
+
+    $scope.$watch(function () {
+        return {
+            updateCounts: $scope.changeCountsAsPerFilter,
+            sortBy: $scope.sortBy
+        }
+    }, function () {
+        filterListener();
+        if ($scope.showAllWords) {
+            $scope.visibleFoundWords = $scope.resultsGroup;
+        } else {
+            $scope.visibleFoundWords = $scope.resultsGroup.slice(0, initialLoadCount);
+        }
+    }, true);
 
 
-        $scope.$watch('filtered', function (newValue) {
-            if (angular.isArray(newValue)) {
-                console.log(newValue.length);
-            }
-        }, true);
-
-        // Utility functions
-        $scope.searchRegex = function (item) {
-            return item.match(new RegExp($scope.regexStrToSearch, "u"));
-        };
-
-    });
+    $scope.$watch('filtered', function (newValue) {
+        if (angular.isArray(newValue)) {
+            console.log(newValue.length);
+        }
+    }, true);
 
     // Function to handle the scroll event and trigger loading more items
     function onScroll() {
