@@ -368,6 +368,34 @@ myApp.controller('SurahCtrl', function ($scope, $http, $routeParams, $location, 
     var selected_surah_id = ($location.search()["id"] || "1") - 1;
     $scope.selected_surah = all_suwar[selected_surah_id];
     $scope.searchText = "";
+    $scope.searchNumber = "";
+
+    $scope.filterByTitle = function(surah) {
+        // Check if searchText exists and surah title contains it
+        if (!$scope.searchText) {
+            return true
+        }
+        let searchPattern = getRegexPatternForString($scope.searchText, {});
+        return surah.title.match(searchPattern) !== null;
+    };
+
+    $scope.filteredSuwar = all_suwar;
+
+    $scope.$watch('searchText', function() {
+        $scope.filteredSuwar = all_suwar.filter(function(surah) {
+           return $scope.filterByTitle(surah);
+        });
+    });
+
+    $scope.$watch('searchNumber', function() {
+        $scope.filteredSuwar = all_suwar.filter(function(surah) {
+            if ($scope.searchNumber.trim() == "" || isNaN($scope.searchNumber)) {
+                return true;
+            }
+            var number = parseInt($scope.searchNumber);
+            return number > 0 && surah.order == number;
+        });
+    });
 
     $scope.scrollTo = function (id) {
         $location.hash(id);
