@@ -482,6 +482,10 @@ body {
     position: relative; /* Ensure positioning context for the shadow element */
 }
 
+.filter > div.scroll-container + .scroll-shadow {
+    margin-top: -1.5em;
+}
+
 .scroll-shadow {
     /* Styles for the fixed shadow element */
     margin-top: -1em; /* Move up by the height of the shadow */
